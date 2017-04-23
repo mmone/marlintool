@@ -17,38 +17,39 @@ If you are running octopi on you Raspberry you need to disconnect it from your p
 
 Commandline parameters
 =======================
-### -s –setup
+### -s --setup
 
 	Download and configure the toolchain and the necessary libraries for building Marlin.
 
-### -m –marlin
+### -m --marlin
 
 	Download Marlin sources.
 
-### -v –verify
+### -v --verify
 
 	Build without uploading.
 
-### -u –upload
+### -u --upload
 
-	Build and upload Marlin. If you are running octopi on you Raspberry you need to disconnect it before uploading otherwise the serial port is blocked.
+	Build and upload Marlin. If you are running octopi on you Raspberry
+	you need to disconnect it before uploading otherwise the serial port is blocked.
 
-### -b –backupConfig [file]
+### -b --backupConfig [file]
 
 	Backup the Marlin configuration to the given file.
 
-### -r –restoreConfig [file]
+### -r --restoreConfig [file]
 
-	Put the given configuration into the Marlin directory. Rename to Configuration.h implicitly.”
+	Put the given configuration into the Marlin directory. Rename to Configuration.h implicitly.
 
-### -c  –clean
+### -c --clean
 
-	Cleanup everything. Remove Marlin sources and Arduino toolchain\n\n”
+	Cleanup everything. Remove Marlin sources and Arduino toolchain.
 
-### -p –port [port]
+### -p --port [port]
 
 	Set the serialport for uploading the firmware. Overrides the default set in the script.
 
-### -h –help
+### -h --help
 
 	Show help.
