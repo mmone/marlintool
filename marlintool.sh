@@ -2,7 +2,7 @@
 marlinRepositoryUrl="https://github.com/SkyNet3D/Marlin"
 
 # Original Marlin
-# marlinRepoUrl="https://github.com/MarlinFirmware/Marlin"
+# marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
 
 # Anet board
 boardString="anet:avr:anetv1"
