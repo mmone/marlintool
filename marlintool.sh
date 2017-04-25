@@ -37,105 +37,115 @@ buildDir="./build"
 hardwareDefintionDirectory="./hardware/anet"
 
 
-
+## Download the toolchain and unpack it
 function getArduinoToolchain
 {
-	echo -e "\nDownloading Arduino environment ...\n"
-	wget http://downloads-02.arduino.cc/arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
-	mkdir "$arduinoDir"
-	echo -e "\nUnpacking Arduino environment. This might take a while ... "
-	tar -xf arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz -C "$arduinoDir" --strip 1
-	rm -R arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
+   echo -e "\nDownloading Arduino environment ...\n"
+   wget http://downloads-02.arduino.cc/arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
+   mkdir "$arduinoDir"
+   echo -e "\nUnpacking Arduino environment. This might take a while ... "
+   tar -xf arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz -C "$arduinoDir" --strip 1
+   rm -R arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
 }
 
 
 ## Get dependencies and move them in place
 function getDependencies
 {
-	echo -e "\nDownloading libraries ...\n"
+   echo -e "\nDownloading libraries ...\n"
 
-	git clone https://github.com/kiyoshigawa/LiquidCrystal_I2C.git
-	rm -rf "$arduinoDir"/libraries/LiquidCrystal_I2C
-	mv -f LiquidCrystal_I2C/LiquidCrystal_I2C "$arduinoDir"/libraries/LiquidCrystal_I2C
-	rm -rf LiquidCrystal_I2C
+   git clone https://github.com/kiyoshigawa/LiquidCrystal_I2C.git
+   rm -rf "$arduinoDir"/libraries/LiquidCrystal_I2C
+   mv -f LiquidCrystal_I2C/LiquidCrystal_I2C "$arduinoDir"/libraries/LiquidCrystal_I2C
+   rm -rf LiquidCrystal_I2C
 
-	git clone https://github.com/lincomatic/LiquidTWI2.git
-	rm -rf "$arduinoDir"/libraries/LiquidTWI2
-	mv -f LiquidTWI2 "$arduinoDir"/libraries/LiquidTWI2
-	rm -rf LiquidTWI2
+   git clone https://github.com/lincomatic/LiquidTWI2.git
+   rm -rf "$arduinoDir"/libraries/LiquidTWI2
+   mv -f LiquidTWI2 "$arduinoDir"/libraries/LiquidTWI2
+   rm -rf LiquidTWI2
 
-	git clone https://github.com/olikraus/U8glib_Arduino.git
-	mv -f U8glib_Arduino "$arduinoDir"/libraries/U8glib_Arduino
-	rm -rf U8glib_Arduino
+   git clone https://github.com/olikraus/U8glib_Arduino.git
+   mv -f U8glib_Arduino "$arduinoDir"/libraries/U8glib_Arduino
+   rm -rf U8glib_Arduino
 }
 
-
+## Clone Marlin
 function getMarlin
 {
-	echo -e "\nCloning Marlin \"$marlinRepositoryUrl\"...\n"
-	git clone "$marlinRepositoryUrl" "$marlinDir" 
-	exit
+   echo -e "\nCloning Marlin \"$marlinRepositoryUrl\"...\n"
+
+   git clone "$marlinRepositoryUrl" "$marlinDir" 
+   exit
 }
 
-
+## Get the toolchain and Marlin, install board definition
 function setupEnvironment
 {
-	echo -e "\nSetting up build environment in \"$arduinoDir\" ...\n"
-	getArduinoToolchain
-	getDependencies
-	installHardwareDefinition
-	exit
+   echo -e "\nSetting up build environment in \"$arduinoDir\" ...\n"
+   getArduinoToolchain
+   getDependencies
+   installHardwareDefinition
+   exit
 }
 
-
+## Install board definition
 function installHardwareDefinition
 {
-	if [ "$hardwareDefintionDirectory" != "" ]; then
-	echo -e "\nInstalling board hardware definition ... \n"
-	
-	cp -R "$hardwareDefintionDirectory" "$arduinoDir"/hardware/
-	fi
+   if [ "$hardwareDefintionDirectory" != "" ]; then
+   echo -e "\nInstalling board hardware definition ... \n"
+
+   cp -R "$hardwareDefintionDirectory" "$arduinoDir"/hardware/
+   fi
 }
 
-
+## Backup Marlin Configuration.h to file
+## param #1 filename
 function backupMarlinConfiguration
 {
-	echo -e "\nSaving marlin configuration to \"$1\"\n"
-	cp  Marlin/Marlin/Configuration.h "$1"
-	exit
+   echo -e "\nSaving marlin configuration to \"$1\"\n"
+   cp  Marlin/Marlin/Configuration.h "$1"
+   exit
 }
 
-
+## Restore Marlin Configuration. Renames given file to Configuration.h
+## param #1 filename
 function installMarlinConfiguration
 {
-	echo -e "\nMoving configuration in place at Marlin/Marlin/Configuration.h.\n"
-	cp "$1" Marlin/Marlin/Configuration.h
-	exit
+   echo -e "\nMoving configuration in place at Marlin/Marlin/Configuration.h.\n"
+
+   cp "$1" Marlin/Marlin/Configuration.h
+   exit
 }
 
-
+## Build Marlin
 function verifyBuild
 {
-	echo -e "\nVerifying build...\n"
-	./arduino/arduino --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
-	exit
+   echo -e "\nVerifying build...\n"
+
+   ./arduino/arduino --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+   exit
 }
 
 
+## Build Marlin and upload 
 function buildAndUpload
 {
-	echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
-	./arduino/arduino --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
-	exit
+   echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
+
+   ./arduino/arduino --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+   exit
 }
 
+
+## Delete everything that was downloaded
 function cleanEverything
 {
-	rm -Rf "$arduinoDir"
-	rm -Rf "$marlinDir"
-	rm -Rf "$buildDir"
+   rm -Rf "$arduinoDir"
+   rm -Rf "$marlinDir"
+   rm -Rf "$buildDir"
 }
 
+## Print help
 function printDocu
 {
 	echo -e "\n\n-------------------------------------------------------------------------"
@@ -155,6 +165,7 @@ function printDocu
    echo -e "-h  --help                  Show this doc.\n\n\n"
 	exit
 }
+
 
 while [ "$1" != "" ]; do
     case $1 in
