@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Marlin fork optimized for the AnetA8 Prusa clone
 marlinRepositoryUrl="https://github.com/SkyNet3D/Marlin"
 
