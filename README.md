@@ -28,6 +28,9 @@ Available commandline parameters
 
 	Download Marlin sources.
 
+### -f  --fetch
+	Update an existing Marlin clone.
+
 ### -v --verify
 
 	Build without uploading.
