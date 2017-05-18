@@ -80,6 +80,31 @@ function getMarlin
    exit
 }
 
+## Update an existing Marlin clone
+function checkoutMarlin
+{
+   date=`date +%Y-%m-%d-%H-%M-%S`
+
+   # backup configuration
+   backupMarlinConfiguration $date
+   
+   cd $marlinDir
+   
+   echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\"..\n"
+   
+   git fetch
+   git checkout
+   git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
+   
+   echo -e "\n"
+   
+   cd ..
+   
+   restoreMarlinConfiguration $date
+   exit
+}
+
+
 ## Get the toolchain and Marlin, install board definition
 function setupEnvironment
 {
@@ -113,7 +138,7 @@ function backupMarlinConfiguration
    
    cp "$marlinDir"/Marlin/Configuration.h configuration/"$1"
    cp "$marlinDir"/Marlin/Configuration_adv.h configuration/"$1"
-   exit
+   
 }
 
 ## Restore Marlin Configuration from backup
@@ -171,6 +196,7 @@ function printDocu
    echo -e "-s  --setup                 Download and configure the toolchain and the"
    echo -e "                            necessary libraries for building Marlin.\n\n"
    echo -e "-m  --marlin                Download Marlin sources.\n\n"
+   echo -e "-f  --fetch                 Update an existing Marlin clone.\n\n"
    echo -e "-v  --verify                Build without uploading.\n\n"
    echo -e "-u  --upload                Build and upload Marlin.\n\n"
    echo -e "-b  --backupConfig  [name]  Backup the Marlin configuration to the named backup.\n"
@@ -193,12 +219,14 @@ while [ "$1" != "" ]; do
                                 ;;
         -m | --marlin )         getMarlin
                                 ;;
+        -f | --fetch )          checkoutMarlin
+                                ;;
         -v | --verify )         verifyBuild
                                 ;;
         -u | --upload )         buildAndUpload
                                 ;;
         -b | --backupConfig )   shift
-                                backupMarlinConfiguration $1
+                                backupMarlinConfiguration $1 exit
                                 ;;
         -r | --restoreConfig )  shift
                                 restoreMarlinConfiguration $1
