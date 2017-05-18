@@ -100,22 +100,37 @@ function installHardwareDefinition
    fi
 }
 
-## Backup Marlin Configuration.h to file
-## param #1 filename
+## Backup Marlin configuration
+## param #1 backup name
 function backupMarlinConfiguration
 {
-   echo -e "\nSaving marlin configuration to \"$1\"\n"
-   cp  Marlin/Marlin/Configuration.h "$1"
+   echo -e "\nSaving Marlin configuration\n"
+   echo -e "  \"Configuration.h\""
+   echo -e "  \"Configuration_adv.h\""
+   echo -e "\nto \"./configuration/$1/\"\n"
+   
+   mkdir -p configuration/$1
+   
+   cp "$marlinDir"/Marlin/Configuration.h configuration/"$1"
+   cp "$marlinDir"/Marlin/Configuration_adv.h configuration/"$1"
    exit
 }
 
-## Restore Marlin Configuration. Renames given file to Configuration.h
-## param #1 filename
-function installMarlinConfiguration
+## Restore Marlin Configuration from backup
+## param #1 backup name
+function restoreMarlinConfiguration
 {
-   echo -e "\nMoving configuration in place at Marlin/Marlin/Configuration.h.\n"
+   if [ -d "configuration/$1" ]; then
+      echo -e "Restoring Marlin configuration\n"
+      echo -e "  \"Configuration.h\""
+      echo -e "  \"Configuration_adv.h\""
+      echo -e "\nfrom \"./configuration/$1/\"\n"   
 
-   cp "$1" Marlin/Marlin/Configuration.h
+      cp configuration/"$1"/Configuration.h "$marlinDir"/Marlin/
+      cp configuration/"$1"/Configuration_adv.h "$marlinDir"/Marlin/
+   else
+      echo -e "\nBackup configuration/$1 not found!\n"
+   fi
    exit
 }
 
@@ -158,8 +173,8 @@ function printDocu
    echo -e "-m  --marlin                Download Marlin sources.\n\n"
    echo -e "-v  --verify                Build without uploading.\n\n"
    echo -e "-u  --upload                Build and upload Marlin.\n\n"
-   echo -e "-b  --backupConfig  [file]  Backup the Marlin configuration to the given file.\n"
-   echo -e "-r  --restoreConfig [file]  Put the given configuration into the Marlin directory."
+   echo -e "-b  --backupConfig  [name]  Backup the Marlin configuration to the named backup.\n"
+   echo -e "-r  --restoreConfig [name]  Restore the given configuration into the Marlin directory."
    echo -e "                            Rename to Configuration.h implicitly.\n\n"
    echo -e "-c  --clean                 Cleanup everything. Remove Marlin sources and Arduino toolchain\n\n"
    echo -e "-p  --port [port]           Set the serialport for uploading the firmware."
@@ -186,7 +201,7 @@ while [ "$1" != "" ]; do
                                 backupMarlinConfiguration $1
                                 ;;
         -r | --restoreConfig )  shift
-                                installMarlinConfiguration $1
+                                restoreMarlinConfiguration $1
                                 ;;
         -c | --clean )          shift
                                 cleanEverything 
