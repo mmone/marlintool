@@ -40,13 +40,14 @@ Available commandline parameters
 	Build and upload Marlin. If you are running octopi on you Raspberry
 	you need to disconnect it before uploading otherwise the serial port is blocked.
 
-### -b --backupConfig [file]
+### -b --backupConfig [name]
 
-	Backup the Marlin configuration to the given file.
+	Backup the Marlin configuration to the named backup.
 
-### -r --restoreConfig [file]
 
-	Put the given configuration into the Marlin directory. Rename to Configuration.h implicitly.
+### -r --restoreConfig [name]
+
+	Restore the given configuration into the Marlin directory.
 
 ### -c --clean
 
