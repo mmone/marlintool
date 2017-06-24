@@ -15,11 +15,16 @@ boardString="anet:avr:anetv1"
 arduinoToolchainVersion="1.8.2"
 
 # Toolchain architecture
-arduinoToolchainArchitecture="linuxarm"
-# 32bit
-#arduinoToolchainArchitecture="linux32"
-# 64bit
-#arduinoToolchainArchitecture="linux64"
+arch=$(uname -m)
+case $arch in
+  arm*) arduinoToolchainArchitecture="linuxarm" ;;
+  i386|i486|i586|i686) arduinoToolchainArchitecture="linux32" ;;
+  x86_64) arduinoToolchainArchitecture="linux64" ;;
+  *)
+    >&2 echo "Unsuppored platform architecture: $arch"
+    exit 1
+    ;;
+esac
 
 # Serialport for uploading
 port="/dev/ttyUSB0"
