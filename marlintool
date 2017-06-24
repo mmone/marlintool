@@ -45,6 +45,19 @@ buildDir="./build"
 # Set to an empty string if you dont need this.
 hardwareDefintionDirectory="./hardware/anet"
 
+## Checks that the tools listed in arguments are all installed.
+checkTools()
+{
+  for cmd in "$@"; do
+    type -p $cmd >/dev/null || [ -x /usr/bin/$cmd ] || [ -x /bin/$cmd ] || [ -x /sbin/$cmd ] || {
+      >&2 echo "The following tools must be installed..."
+      >&2 echo "  $@"
+      >&2 echo "  Failed to find $cmd"
+      >&2 echo
+      exit 1
+    }
+  done
+}
 
 ## Download the toolchain and unpack it
 getArduinoToolchain()
@@ -220,6 +233,7 @@ printDocu()
    exit
 }
 
+checkTools git tar wget
 
 while [ "$1" != "" ]; do
     case $1 in
