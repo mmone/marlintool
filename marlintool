@@ -45,7 +45,7 @@ hardwareDefintionDirectory="./hardware/anet"
 
 
 ## Download the toolchain and unpack it
-function getArduinoToolchain
+getArduinoToolchain()
 {
    echo -e "\nDownloading Arduino environment ...\n"
    wget http://downloads-02.arduino.cc/arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
@@ -57,7 +57,7 @@ function getArduinoToolchain
 
 
 ## Get dependencies and move them in place
-function getDependencies
+getDependencies()
 {
    echo -e "\nDownloading libraries ...\n"
 
@@ -77,7 +77,7 @@ function getDependencies
 }
 
 ## Clone Marlin
-function getMarlin
+getMarlin()
 {
    echo -e "\nCloning Marlin \"$marlinRepositoryUrl\"...\n"
 
@@ -86,7 +86,7 @@ function getMarlin
 }
 
 ## Update an existing Marlin clone
-function checkoutMarlin
+checkoutMarlin()
 {
    date=`date +%Y-%m-%d-%H-%M-%S`
 
@@ -111,7 +111,7 @@ function checkoutMarlin
 
 
 ## Get the toolchain and Marlin, install board definition
-function setupEnvironment
+setupEnvironment()
 {
    echo -e "\nSetting up build environment in \"$arduinoDir\" ...\n"
    getArduinoToolchain
@@ -121,7 +121,7 @@ function setupEnvironment
 }
 
 ## Install board definition
-function installHardwareDefinition
+installHardwareDefinition()
 {
    if [ "$hardwareDefintionDirectory" != "" ]; then
    echo -e "\nInstalling board hardware definition ... \n"
@@ -132,7 +132,7 @@ function installHardwareDefinition
 
 ## Backup Marlin configuration
 ## param #1 backup name
-function backupMarlinConfiguration
+backupMarlinConfiguration()
 {
    echo -e "\nSaving Marlin configuration\n"
    echo -e "  \"Configuration.h\""
@@ -148,7 +148,7 @@ function backupMarlinConfiguration
 
 ## Restore Marlin Configuration from backup
 ## param #1 backup name
-function restoreMarlinConfiguration
+restoreMarlinConfiguration()
 {
    if [ -d "configuration/$1" ]; then
       echo -e "Restoring Marlin configuration\n"
@@ -165,7 +165,7 @@ function restoreMarlinConfiguration
 }
 
 ## Build Marlin
-function verifyBuild
+verifyBuild()
 {
    echo -e "\nVerifying build...\n"
 
@@ -175,7 +175,7 @@ function verifyBuild
 
 
 ## Build Marlin and upload 
-function buildAndUpload
+buildAndUpload()
 {
    echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
 
@@ -185,7 +185,7 @@ function buildAndUpload
 
 
 ## Delete everything that was downloaded
-function cleanEverything
+cleanEverything()
 {
    rm -Rf "$arduinoDir"
    rm -Rf "$marlinDir"
@@ -193,7 +193,7 @@ function cleanEverything
 }
 
 ## Print help
-function printDocu
+printDocu()
 {
 	echo -e "\n\n-------------------------------------------------------------------------"
    echo -e "    Comandline parameters:"
