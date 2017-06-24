@@ -1,5 +1,7 @@
 #!/bin/bash
 
+scriptName=$0
+
 # Marlin fork optimized for the AnetA8 Prusa clone
 marlinRepositoryUrl="https://github.com/SkyNet3D/Marlin"
 
@@ -195,23 +197,27 @@ cleanEverything()
 ## Print help
 printDocu()
 {
-	echo -e "\n\n-------------------------------------------------------------------------"
-   echo -e "    Comandline parameters:"
-   echo -e "-----------------------------------------------------------------------------\n\n"
-   echo -e "-s  --setup                 Download and configure the toolchain and the"
-   echo -e "                            necessary libraries for building Marlin.\n\n"
-   echo -e "-m  --marlin                Download Marlin sources.\n\n"
-   echo -e "-f  --fetch                 Update an existing Marlin clone.\n\n"
-   echo -e "-v  --verify                Build without uploading.\n\n"
-   echo -e "-u  --upload                Build and upload Marlin.\n\n"
-   echo -e "-b  --backupConfig  [name]  Backup the Marlin configuration to the named backup.\n"
-   echo -e "-r  --restoreConfig [name]  Restore the given configuration into the Marlin directory."
-   echo -e "                            Rename to Configuration.h implicitly.\n\n"
-   echo -e "-c  --clean                 Cleanup everything. Remove Marlin sources and Arduino toolchain\n\n"
-   echo -e "-p  --port [port]           Set the serialport for uploading the firmware."
-   echo -e "                            Overrides the default in the script.\n\n"
-   echo -e "-h  --help                  Show this doc.\n\n\n"
-	exit
+   echo "Usage:"
+   echo " $scriptName ARGS"
+   echo
+   echo "Installs Marlin 3D printer firmware."
+   echo
+   echo "Options:"
+   echo " -s, --setup                 Download and configure the toolchain and the"
+   echo "                               necessary libraries for building Marlin."
+   echo " -m, --marlin                Download Marlin sources."
+   echo " -f, --fetch                 Update an existing Marlin clone."
+   echo " -v, --verify                Build without uploading."
+   echo " -u, --upload                Build and upload Marlin."
+   echo " -b, --backupConfig  [name]  Backup the Marlin configuration to the named backup."
+   echo " -r, --restoreConfig [name]  Restore the given configuration into the Marlin directory."
+   echo "                               Rename to Configuration.h implicitly."
+   echo " -c, --clean                 Cleanup everything. Remove Marlin sources and Arduino toolchain"
+   echo " -p, --port [port]           Set the serialport for uploading the firmware."
+   echo "                               Overrides the default in the script."
+   echo " -h, --help                  Show this doc."
+   echo
+   exit
 }
 
 
