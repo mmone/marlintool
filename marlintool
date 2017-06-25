@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# by mmone with contribution by jhol
+# on github at https://github.com/mmone/marlintool
+
 # Marlin fork optimized for the AnetA8 Prusa clone
 marlinRepositoryUrl="https://github.com/SkyNet3D/Marlin"
 
@@ -15,11 +18,16 @@ boardString="anet:avr:anetv1"
 arduinoToolchainVersion="1.8.2"
 
 # Toolchain architecture
-arduinoToolchainArchitecture="linuxarm"
-# 32bit
-#arduinoToolchainArchitecture="linux32"
-# 64bit
-#arduinoToolchainArchitecture="linux64"
+arch=$(uname -m)
+case $arch in
+  arm*) arduinoToolchainArchitecture="linuxarm" ;;
+  i386|i486|i586|i686) arduinoToolchainArchitecture="linux32" ;;
+  x86_64) arduinoToolchainArchitecture="linux64" ;;
+  *)
+    >&2 echo "Unsuppored platform architecture: $arch"
+    exit 1
+    ;;
+esac
 
 # Serialport for uploading
 port="/dev/ttyUSB0"
@@ -38,9 +46,24 @@ buildDir="./build"
 # Set to an empty string if you dont need this.
 hardwareDefintionDirectory="./hardware/anet"
 
+scriptName=$0
+
+## Checks that the tools listed in arguments are all installed.
+checkTools()
+{
+  for cmd in "$@"; do
+    type -p $cmd >/dev/null || [ -x /usr/bin/$cmd ] || [ -x /bin/$cmd ] || [ -x /sbin/$cmd ] || {
+      >&2 echo "The following tools must be installed:"
+      >&2 echo "  $@"
+      >&2 echo "  Failed to find $cmd"
+      >&2 echo
+      exit 1
+    }
+  done
+}
 
 ## Download the toolchain and unpack it
-function getArduinoToolchain
+getArduinoToolchain()
 {
    echo -e "\nDownloading Arduino environment ...\n"
    wget http://downloads-02.arduino.cc/arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
@@ -52,7 +75,7 @@ function getArduinoToolchain
 
 
 ## Get dependencies and move them in place
-function getDependencies
+getDependencies()
 {
    echo -e "\nDownloading libraries ...\n"
 
@@ -72,7 +95,7 @@ function getDependencies
 }
 
 ## Clone Marlin
-function getMarlin
+getMarlin()
 {
    echo -e "\nCloning Marlin \"$marlinRepositoryUrl\"...\n"
 
@@ -81,32 +104,32 @@ function getMarlin
 }
 
 ## Update an existing Marlin clone
-function checkoutMarlin
+checkoutMarlin()
 {
    date=`date +%Y-%m-%d-%H-%M-%S`
 
    # backup configuration
    backupMarlinConfiguration $date
-   
+
    cd $marlinDir
-   
+
    echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\"..\n"
-   
+
    git fetch
    git checkout
    git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
-   
+
    echo -e "\n"
-   
+
    cd ..
-   
+
    restoreMarlinConfiguration $date
    exit
 }
 
 
 ## Get the toolchain and Marlin, install board definition
-function setupEnvironment
+setupEnvironment()
 {
    echo -e "\nSetting up build environment in \"$arduinoDir\" ...\n"
    getArduinoToolchain
@@ -116,7 +139,7 @@ function setupEnvironment
 }
 
 ## Install board definition
-function installHardwareDefinition
+installHardwareDefinition()
 {
    if [ "$hardwareDefintionDirectory" != "" ]; then
    echo -e "\nInstalling board hardware definition ... \n"
@@ -127,29 +150,28 @@ function installHardwareDefinition
 
 ## Backup Marlin configuration
 ## param #1 backup name
-function backupMarlinConfiguration
+backupMarlinConfiguration()
 {
    echo -e "\nSaving Marlin configuration\n"
    echo -e "  \"Configuration.h\""
    echo -e "  \"Configuration_adv.h\""
    echo -e "\nto \"./configuration/$1/\"\n"
-   
+
    mkdir -p configuration/$1
-   
+
    cp "$marlinDir"/Marlin/Configuration.h configuration/"$1"
    cp "$marlinDir"/Marlin/Configuration_adv.h configuration/"$1"
-   
 }
 
 ## Restore Marlin Configuration from backup
 ## param #1 backup name
-function restoreMarlinConfiguration
+restoreMarlinConfiguration()
 {
    if [ -d "configuration/$1" ]; then
       echo -e "Restoring Marlin configuration\n"
       echo -e "  \"Configuration.h\""
       echo -e "  \"Configuration_adv.h\""
-      echo -e "\nfrom \"./configuration/$1/\"\n"   
+      echo -e "\nfrom \"./configuration/$1/\"\n"
 
       cp configuration/"$1"/Configuration.h "$marlinDir"/Marlin/
       cp configuration/"$1"/Configuration_adv.h "$marlinDir"/Marlin/
@@ -160,7 +182,7 @@ function restoreMarlinConfiguration
 }
 
 ## Build Marlin
-function verifyBuild
+verifyBuild()
 {
    echo -e "\nVerifying build...\n"
 
@@ -170,7 +192,7 @@ function verifyBuild
 
 
 ## Build Marlin and upload 
-function buildAndUpload
+buildAndUpload()
 {
    echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
 
@@ -180,7 +202,7 @@ function buildAndUpload
 
 
 ## Delete everything that was downloaded
-function cleanEverything
+cleanEverything()
 {
    rm -Rf "$arduinoDir"
    rm -Rf "$marlinDir"
@@ -188,27 +210,32 @@ function cleanEverything
 }
 
 ## Print help
-function printDocu
+printDocu()
 {
-	echo -e "\n\n-------------------------------------------------------------------------"
-   echo -e "    Comandline parameters:"
-   echo -e "-----------------------------------------------------------------------------\n\n"
-   echo -e "-s  --setup                 Download and configure the toolchain and the"
-   echo -e "                            necessary libraries for building Marlin.\n\n"
-   echo -e "-m  --marlin                Download Marlin sources.\n\n"
-   echo -e "-f  --fetch                 Update an existing Marlin clone.\n\n"
-   echo -e "-v  --verify                Build without uploading.\n\n"
-   echo -e "-u  --upload                Build and upload Marlin.\n\n"
-   echo -e "-b  --backupConfig  [name]  Backup the Marlin configuration to the named backup.\n"
-   echo -e "-r  --restoreConfig [name]  Restore the given configuration into the Marlin directory."
-   echo -e "                            Rename to Configuration.h implicitly.\n\n"
-   echo -e "-c  --clean                 Cleanup everything. Remove Marlin sources and Arduino toolchain\n\n"
-   echo -e "-p  --port [port]           Set the serialport for uploading the firmware."
-   echo -e "                            Overrides the default in the script.\n\n"
-   echo -e "-h  --help                  Show this doc.\n\n\n"
-	exit
+   echo "Usage:"
+   echo " $scriptName ARGS"
+   echo
+   echo "Builds an installs Marlin 3D printer firmware."
+   echo
+   echo "Options:"
+   echo " -s, --setup                 Download and configure the toolchain and the"
+   echo "                             necessary libraries for building Marlin."
+   echo " -m, --marlin                Download Marlin sources."
+   echo " -f, --fetch                 Update an existing Marlin clone."
+   echo " -v, --verify                Build without uploading."
+   echo " -u, --upload                Build and upload Marlin."
+   echo " -b, --backupConfig  [name]  Backup the Marlin configuration to the named backup."
+   echo " -r, --restoreConfig [name]  Restore the given configuration into the Marlin directory."
+   echo "                               Rename to Configuration.h implicitly."
+   echo " -c, --clean                 Cleanup everything. Remove Marlin sources and Arduino toolchain"
+   echo " -p, --port [port]           Set the serialport for uploading the firmware."
+   echo "                               Overrides the default in the script."
+   echo " -h, --help                  Show this doc."
+   echo
+   exit
 }
 
+checkTools git tar wget
 
 while [ "$1" != "" ]; do
     case $1 in
