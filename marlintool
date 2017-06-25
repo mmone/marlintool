@@ -1,6 +1,7 @@
 #!/bin/bash
 
-scriptName=$0
+# by mmone with contribution by jhol
+# on github at https://github.com/mmone/marlintool
 
 # Marlin fork optimized for the AnetA8 Prusa clone
 marlinRepositoryUrl="https://github.com/SkyNet3D/Marlin"
@@ -45,12 +46,14 @@ buildDir="./build"
 # Set to an empty string if you dont need this.
 hardwareDefintionDirectory="./hardware/anet"
 
+scriptName=$0
+
 ## Checks that the tools listed in arguments are all installed.
 checkTools()
 {
   for cmd in "$@"; do
     type -p $cmd >/dev/null || [ -x /usr/bin/$cmd ] || [ -x /bin/$cmd ] || [ -x /sbin/$cmd ] || {
-      >&2 echo "The following tools must be installed..."
+      >&2 echo "The following tools must be installed:"
       >&2 echo "  $@"
       >&2 echo "  Failed to find $cmd"
       >&2 echo
@@ -107,19 +110,19 @@ checkoutMarlin()
 
    # backup configuration
    backupMarlinConfiguration $date
-   
+
    cd $marlinDir
-   
+
    echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\"..\n"
-   
+
    git fetch
    git checkout
    git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
-   
+
    echo -e "\n"
-   
+
    cd ..
-   
+
    restoreMarlinConfiguration $date
    exit
 }
@@ -153,12 +156,11 @@ backupMarlinConfiguration()
    echo -e "  \"Configuration.h\""
    echo -e "  \"Configuration_adv.h\""
    echo -e "\nto \"./configuration/$1/\"\n"
-   
+
    mkdir -p configuration/$1
-   
+
    cp "$marlinDir"/Marlin/Configuration.h configuration/"$1"
    cp "$marlinDir"/Marlin/Configuration_adv.h configuration/"$1"
-   
 }
 
 ## Restore Marlin Configuration from backup
@@ -169,7 +171,7 @@ restoreMarlinConfiguration()
       echo -e "Restoring Marlin configuration\n"
       echo -e "  \"Configuration.h\""
       echo -e "  \"Configuration_adv.h\""
-      echo -e "\nfrom \"./configuration/$1/\"\n"   
+      echo -e "\nfrom \"./configuration/$1/\"\n"
 
       cp configuration/"$1"/Configuration.h "$marlinDir"/Marlin/
       cp configuration/"$1"/Configuration_adv.h "$marlinDir"/Marlin/
@@ -213,11 +215,11 @@ printDocu()
    echo "Usage:"
    echo " $scriptName ARGS"
    echo
-   echo "Installs Marlin 3D printer firmware."
+   echo "Builds an installs Marlin 3D printer firmware."
    echo
    echo "Options:"
    echo " -s, --setup                 Download and configure the toolchain and the"
-   echo "                               necessary libraries for building Marlin."
+   echo "                             necessary libraries for building Marlin."
    echo " -m, --marlin                Download Marlin sources."
    echo " -f, --fetch                 Update an existing Marlin clone."
    echo " -v, --verify                Build without uploading."
