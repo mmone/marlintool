@@ -8,11 +8,11 @@ Several parameters at the beginning of the script allow to configure it for diff
 
 - If you would like to build stock Marlin, change the “marlinRepositoryUrl” parameter respectively.
 
-- If you are not on ARM set the "arduinoToolchainArchitecture" parameter to your architecture.
-
 - If you dont need additional hardware/board definitions because you can use the ones that come with the toolchain set the parameter “hardwareDefintionDirectory” to an empty string. This prevents the script from trying to copy the board definition that is needed for the A8.
 
 - If you need additional libraries for your build add them to the "getDependencies" function.
+
+- The build platform architecture is autodetected. At the moment Linux 32 Bit, 64 Bit and ARM are supported.
 
 Reminder: If you are running octopi on you Raspberry you need to disconnect it from your printer before uploading, otherwise the serial port is blocked.
 
