@@ -4,9 +4,10 @@ This script sets up the build environment collects dependencies and provides com
 
 The script is setup by default to build the Marlin fork [“Skynet3D”](https://github.com/SkyNet3D/Marlin) for the Anet A8 Prusa clone on a Raspberry Pi.
 
-Several parameters at the beginning of the script allow to configure it for different targets.
+Recently Anet A6/A8 support has been merged back into the main Marlin branch. You can find example configurations for Anet printers in the Marlin sources at: https://github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet
+If you want to build stock Marlin change the “marlinRepositoryUrl” parameter respectively.
 
-- If you would like to build stock Marlin, change the “marlinRepositoryUrl” parameter respectively.
+Several parameters at the beginning of the script allow to adapt it further to your needs.
 
 - If you dont need additional hardware/board definitions because you can use the ones that come with the toolchain set the parameter “hardwareDefintionDirectory” to an empty string. This prevents the script from trying to copy the board definition that is needed for the A8.
 
