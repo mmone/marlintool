@@ -218,6 +218,7 @@ printDocu()
    echo "Builds an installs Marlin 3D printer firmware."
    echo
    echo "Options:"
+   echo
    echo " -s, --setup                 Download and configure the toolchain and the"
    echo "                             necessary libraries for building Marlin."
    echo " -m, --marlin                Download Marlin sources."
@@ -236,6 +237,8 @@ printDocu()
 }
 
 checkTools git tar wget
+
+if [ "$1" = "" ]; then printDocu; exit 1; fi
 
 while [ "$1" != "" ]; do
     case $1 in
