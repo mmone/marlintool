@@ -9,8 +9,12 @@ marlinRepositoryUrl="https://github.com/SkyNet3D/Marlin"
 # Original Marlin
 # marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
 
-# Anet board
-boardString="anet:avr:anetv1"
+# Anet board hardware definition repository URL.
+# Set to empty string if you don't need this.
+hardwareDefinitionRepo="https://github.com/SkyNet3D/anet-board.git"
+
+# Anet board identifier.
+boardString="anet:avr:anet"
 
 # Arduino Mega
 # boardString="arduino:avr:mega:cpu=atmega2560"
@@ -41,10 +45,7 @@ marlinDir="Marlin"
 # Build directory
 buildDir="./build"
 
-# The path to additional hardware defnitions for the arduino tool chain
-# eg. sanguino boards that live in "/arduino/hardware".
-# Set to an empty string if you dont need this.
-hardwareDefintionDirectory="./hardware/anet"
+
 
 scriptName=$0
 
@@ -134,19 +135,27 @@ setupEnvironment()
    echo -e "\nSetting up build environment in \"$arduinoDir\" ...\n"
    getArduinoToolchain
    getDependencies
-   installHardwareDefinition
+   getHardwareDefinition
    exit
 }
 
-## Install board definition
-installHardwareDefinition()
+## Fetch and install anet board hardware definition
+getHardwareDefinition()
 {
-   if [ "$hardwareDefintionDirectory" != "" ]; then
-   echo -e "\nInstalling board hardware definition ... \n"
+   if [ "$hardwareDefinitionRepo" != "" ]; then
+   
+   echo -e "\nCloning board hardware definition from:\n $hardwareDefinitionRepo \n"
+   git clone "$hardwareDefinitionRepo"
 
-   cp -R "$hardwareDefintionDirectory" "$arduinoDir"/hardware/
+   echo -e "\nMoving board hardware definition into arduino directory... \n"
+   
+   repoName=$(basename "$hardwareDefinitionRepo" ".${hardwareDefinitionRepo##*.}")
+   
+   mv -f $repoName/hardware/* "$arduinoDir"/hardware/
+   rm -rf $repoName
    fi
 }
+
 
 ## Backup Marlin configuration
 ## param #1 backup name
