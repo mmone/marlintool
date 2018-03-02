@@ -5,7 +5,9 @@ This script sets up the build environment, collects dependencies and provides co
 The script is setup by default to build the Marlin firmware [“Marlin”](https://github.com/MarlinFirmware/Marlin) but can be easily reconfigured to build any Marlin variant.
 Just change the "marlinRepositoryUrl" parameter at the beginning of the script to the respective github repository.
 
-Recently Anet A6/A8 support has been merged back into the main Marlin branch. I would highly recommend to switch to the official Marlin branch from now on. You can find example configurations for Anet printers in the Marlin sources at: https://github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet. Just replace the "Configuration.h" and "Configuration_adv.h" in the marlin directory with these files for a good starting point for your configuration.
+If you are building the firmware for the Anet A6/A8 you can find suitable example configurations in the Marlin sources at: [github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet](https://github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet). Just replace the "Configuration.h" and "Configuration_adv.h" in the marlin directory with the files your find there for a good starting point of your configuration.
+
+The script also downloads the necessary hardware/board definitions for the Anet hardware. If you do not need those because you use the ones that come with the toolchain, set the parameter “hardwareDefinitionRepo” to an empty string. This prevents the script from fetching the board definitions from github.
 
 
 Several parameters at the beginning of the script allow to adapt the script further to your needs.
