@@ -195,7 +195,7 @@ verifyBuild()
 {
    echo -e "\nVerifying build...\n"
 
-   ./arduino/arduino --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+   "$arduinoDir"/arduino --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
    exit
 }
 
@@ -205,7 +205,7 @@ buildAndUpload()
 {
    echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
 
-   ./arduino/arduino --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+   "$arduinoDir"/arduino --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
    exit
 }
 
