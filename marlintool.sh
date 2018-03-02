@@ -3,11 +3,8 @@
 # by mmone with contribution by jhol
 # on github at https://github.com/mmone/marlintool
 
-# Marlin fork optimized for the AnetA8 Prusa clone
-marlinRepositoryUrl="https://github.com/SkyNet3D/Marlin"
-
-# Original Marlin
-# marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
+# Official Marlin repository
+marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
 
 # Anet board hardware definition repository URL.
 # Set to empty string if you don't need this.
