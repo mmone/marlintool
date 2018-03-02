@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# by mmone with contribution by jhol
+# by mmone with contribution by jhol, tssva
 # on github at https://github.com/mmone/marlintool
 
 # Official Marlin repository
