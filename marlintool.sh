@@ -6,6 +6,9 @@
 # Official Marlin repository
 marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
 
+# Repository branch to use
+marlinRepositoryBranch="1.1.x"
+
 # Anet board hardware definition repository URL.
 # Set to empty string if you don't need this.
 hardwareDefinitionRepo="https://github.com/SkyNet3D/anet-board.git"
@@ -100,7 +103,7 @@ getMarlin()
 {
    echo -e "\nCloning Marlin \"$marlinRepositoryUrl\" ...\n"
 
-   git clone "$marlinRepositoryUrl" "$marlinDir" 
+   git clone -b "$marlinRepositoryBranch" --single-branch "$marlinRepositoryUrl" "$marlinDir" 
 
    backupMarlinConfiguration "original"
 
