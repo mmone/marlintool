@@ -13,6 +13,9 @@ hardwareDefinitionRepo="https://github.com/SkyNet3D/anet-board.git"
 # Anet board identifier.
 boardString="anet:avr:anet"
 
+# Anet printer model
+printer="A8"
+
 # Arduino Mega
 # boardString="arduino:avr:mega:cpu=atmega2560"
 
@@ -98,6 +101,12 @@ getMarlin()
    echo -e "\nCloning Marlin \"$marlinRepositoryUrl\"...\n"
 
    git clone "$marlinRepositoryUrl" "$marlinDir" 
+
+   backupMarlinConfiguration "original"
+
+   echo -e "\nCopying Anet $printer example configuration files to \"$marlinDir/Marlin\"...\n"
+   cp "$marlinDir"/Marlin/example_configurations/Anet/"$printer"/Configuration.h "$marlinDir"/Marlin/Configuration.h
+   cp "$marlinDir"/Marlin/example_configurations/Anet/"$printer"/Configuration_adv.h "$marlinDir"/Marlin/Configuration_adv.h
    exit
 }
 
