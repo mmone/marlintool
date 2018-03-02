@@ -2,10 +2,10 @@
 
 This script sets up the build environment, collects dependencies and provides commands for building and uploading Marlin from the commandline. It uses the official Arduino toolchain. Everything is standalone nothing is installed outside the marlintool directory.
 
-The script is setup by default to build the Marlin fork [“Skynet3D”](https://github.com/SkyNet3D/Marlin) for the Anet A8 Prusa clone but can be easily reconfigured to build any Marlin variant.
-Just change the "marlinRepositoryUrl" parameter at the beginning of the script to the respective github repository.
+The script is setup by default to build the 1.1.x branch of the official Marlin [“Marlin”](https://github.com/MarlinFirmware/Marlin) but can be easily reconfigured to build any Marlin variant.
+Just change the "marlinRepositoryUrl" and "marlinRepositoryBranch" parameters at the beginning of the script to the respective github repository.
 
-Recently Anet A6/A8 support has been merged back into the main Marlin branch. I would highly recommend to switch to the official Marlin branch from now on. You can find example configurations for Anet printers in the Marlin sources at: https://github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet. Just replace the "Configuration.h" and "Configuration_adv.h" in the marlin directory with these files for a good starting point for your configuration.
+After downloading Marlin the example configuration files for the Anet A8 are copied in the marlin directory. Just change the "printer" parameter at the beginning of the script to have the appropriate example configuration files for your printer copied instead.
 
 
 Several parameters at the beginning of the script allow to adapt the script further to your needs.

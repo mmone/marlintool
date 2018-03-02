@@ -3,11 +3,11 @@
 # by mmone with contribution by jhol
 # on github at https://github.com/mmone/marlintool
 
-# Marlin fork optimized for the AnetA8 Prusa clone
-marlinRepositoryUrl="https://github.com/SkyNet3D/Marlin"
+# Official Marlin repository
+marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
 
-# Original Marlin
-# marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
+# Repository branch to use
+marlinRepositoryBranch="1.1.x"
 
 # Anet board hardware definition repository URL.
 # Set to empty string if you don't need this.
@@ -15,6 +15,9 @@ hardwareDefinitionRepo="https://github.com/SkyNet3D/anet-board.git"
 
 # Anet board identifier.
 boardString="anet:avr:anet"
+
+# Anet printer model
+printer="A8"
 
 # Arduino Mega
 # boardString="arduino:avr:mega:cpu=atmega2560"
@@ -69,7 +72,7 @@ getArduinoToolchain()
    echo -e "\nDownloading Arduino environment ...\n"
    wget http://downloads-02.arduino.cc/arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
    mkdir "$arduinoDir"
-   echo -e "\nUnpacking Arduino environment. This might take a while ... "
+   echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
    tar -xf arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz -C "$arduinoDir" --strip 1
    rm -R arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
 }
@@ -98,9 +101,15 @@ getDependencies()
 ## Clone Marlin
 getMarlin()
 {
-   echo -e "\nCloning Marlin \"$marlinRepositoryUrl\"...\n"
+   echo -e "\nCloning Marlin \"$marlinRepositoryUrl\" ...\n"
 
-   git clone "$marlinRepositoryUrl" "$marlinDir" 
+   git clone -b "$marlinRepositoryBranch" --single-branch "$marlinRepositoryUrl" "$marlinDir" 
+
+   backupMarlinConfiguration "original"
+
+   echo -e "\nCopying Anet $printer example configuration files to \"./$marlinDir/Marlin\" ...\n"
+   cp "$marlinDir"/Marlin/example_configurations/Anet/"$printer"/Configuration.h "$marlinDir"/Marlin/Configuration.h
+   cp "$marlinDir"/Marlin/example_configurations/Anet/"$printer"/Configuration_adv.h "$marlinDir"/Marlin/Configuration_adv.h
    exit
 }
 
@@ -114,7 +123,7 @@ checkoutMarlin()
 
    cd $marlinDir
 
-   echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\"..\n"
+   echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\" ...\n"
 
    git fetch
    git checkout
@@ -144,10 +153,10 @@ getHardwareDefinition()
 {
    if [ "$hardwareDefinitionRepo" != "" ]; then
    
-   echo -e "\nCloning board hardware definition from:\n $hardwareDefinitionRepo \n"
+   echo -e "\nCloning board hardware definition from \"$hardwareDefinitionRepo\" ...\n"
    git clone "$hardwareDefinitionRepo"
 
-   echo -e "\nMoving board hardware definition into arduino directory... \n"
+   echo -e "\nMoving board hardware definition into arduino directory ...\n"
    
    repoName=$(basename "$hardwareDefinitionRepo" ".${hardwareDefinitionRepo##*.}")
    
@@ -193,9 +202,9 @@ restoreMarlinConfiguration()
 ## Build Marlin
 verifyBuild()
 {
-   echo -e "\nVerifying build...\n"
+   echo -e "\nVerifying build ...\n"
 
-   ./arduino/arduino --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+   "$arduinoDir"/arduino --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
    exit
 }
 
@@ -205,7 +214,7 @@ buildAndUpload()
 {
    echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
 
-   ./arduino/arduino --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+   "$arduinoDir"/arduino --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
    exit
 }
 
