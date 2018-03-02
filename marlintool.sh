@@ -69,7 +69,7 @@ getArduinoToolchain()
    echo -e "\nDownloading Arduino environment ...\n"
    wget http://downloads-02.arduino.cc/arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
    mkdir "$arduinoDir"
-   echo -e "\nUnpacking Arduino environment. This might take a while ... "
+   echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
    tar -xf arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz -C "$arduinoDir" --strip 1
    rm -R arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
 }
@@ -98,7 +98,7 @@ getDependencies()
 ## Clone Marlin
 getMarlin()
 {
-   echo -e "\nCloning Marlin \"$marlinRepositoryUrl\"...\n"
+   echo -e "\nCloning Marlin \"$marlinRepositoryUrl\" ...\n"
 
    git clone "$marlinRepositoryUrl" "$marlinDir" 
    exit
@@ -114,7 +114,7 @@ checkoutMarlin()
 
    cd $marlinDir
 
-   echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\"..\n"
+   echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\" ...\n"
 
    git fetch
    git checkout
@@ -144,10 +144,10 @@ getHardwareDefinition()
 {
    if [ "$hardwareDefinitionRepo" != "" ]; then
    
-   echo -e "\nCloning board hardware definition from:\n $hardwareDefinitionRepo \n"
+   echo -e "\nCloning board hardware definition from \"$hardwareDefinitionRepo\" ... \n"
    git clone "$hardwareDefinitionRepo"
 
-   echo -e "\nMoving board hardware definition into arduino directory... \n"
+   echo -e "\nMoving board hardware definition into arduino directory ... \n"
    
    repoName=$(basename "$hardwareDefinitionRepo" ".${hardwareDefinitionRepo##*.}")
    
@@ -193,7 +193,7 @@ restoreMarlinConfiguration()
 ## Build Marlin
 verifyBuild()
 {
-   echo -e "\nVerifying build...\n"
+   echo -e "\nVerifying build ...\n"
 
    "$arduinoDir"/arduino --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
    exit
