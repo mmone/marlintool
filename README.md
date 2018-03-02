@@ -10,6 +10,8 @@ Recently Anet A6/A8 support has been merged back into the main Marlin branch. I 
 
 Several parameters at the beginning of the script allow to adapt the script further to your needs.
 
+- If you would like to use a specific branch of a repository set the parameter "marlinRepositoryBranch" to the name of the branch.
+
 - If you do not need additional hardware/board definitions because you use the ones that come with the toolchain set the parameter “hardwareDefinitionRepo” to an empty string. This prevents the script from fetching the board definition that is needed for the A8 from github.
 
 - If you need additional libraries for your build add them to the "getDependencies" function.
