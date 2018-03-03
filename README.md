@@ -22,7 +22,7 @@ Several parameters at the beginning of the script allow to adapt the script furt
 
 Reminder: If you are running octopi on you Raspberry you need to disconnect it from your printer before uploading, otherwise the serial port is blocked.
 
-Warning: On OS X due to how the Arduino toolchain is packaged the Arduino splash screen will be displayed even when the toolchain is used from the commandline. This will cause the terminal window you launch marlintool from to lose focus. It also means that a build cannot be launched from a remote ssh session.
+*Note: On OS X due to how the Arduino toolchain is packaged the Arduino splash screen will be displayed even when the toolchain is used from the commandline. This will cause the terminal window you launch marlintool from to lose focus. It also means that a build cannot be launched from a remote ssh session.*
 
 Available commandline parameters
 =======================
