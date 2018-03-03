@@ -18,11 +18,11 @@ Several parameters at the beginning of the script allow to adapt the script furt
 
 - If you need additional libraries for your build add them to the "getDependencies" function.
 
-- The build platform architecture is auto detected. At the moment Linux 32 Bit, 64 Bit and ARM are supported.
+- The build platform and architecture are auto detected. At the moment Linux 32 Bit, 64 Bit, ARM and OS X are supported.
 
 Reminder: If you are running octopi on you Raspberry you need to disconnect it from your printer before uploading, otherwise the serial port is blocked.
 
-
+Warning: On OS X due to how the Arduino toolchain is packaged the Arduino splash screen will be displayed even when the toolchain is used from the commandline. This will cause the terminal window you launch marlintool from to lose focus. It also means that a build cannot be launched from a remote ssh session.
 
 Available commandline parameters
 =======================

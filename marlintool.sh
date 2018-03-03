@@ -46,6 +46,21 @@ marlinDir="Marlin"
 # Build directory
 buildDir="./build"
 
+# Operating system specific values
+os=$(uname -s)
+if [ "$os" == "Darwin" ]; then
+  tools="git unzip curl"
+  arduinoToolchainArchive="arduino-$arduinoToolchainVersion-macosx.zip"
+  arduinoExecutable="$arduinoDir/Arduino.app/Contents/MacOS/Arduino"
+  arduinoHardwareDir="$arduinoDir/Arduino.app/Contents/Java/hardware"
+  arduinoLibrariesDir="$arduinoDir/Arduino.app/Contents/Java/libraries"
+else
+  tools="git tar wget"
+  arduinoToolchainArchive="arduino-$arduinoToolchainVersion-$arduinoToolchainArchitecture.tar.xz"
+  arduinoExecutable="$arduinoDir/arduino"
+  arduinoHardwareDir="$arduinoDir/hardware"
+  arduinoLibrariesDir="$arduinoDir/libraries"
+fi
 
 
 scriptName=$0
@@ -68,11 +83,19 @@ checkTools()
 getArduinoToolchain()
 {
    echo -e "\nDownloading Arduino environment ...\n"
-   wget http://downloads-02.arduino.cc/arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
+   if [ "$os" == "Darwin" ]; then
+     curl -o "$arduinoToolchainArchive" http://downloads-02.arduino.cc/"$arduinoToolchainArchive"
+   else
+     wget http://downloads-02.arduino.cc/"$arduinoToolchainArchive"
+   fi
    mkdir "$arduinoDir"
    echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
-   tar -xf arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz -C "$arduinoDir" --strip 1
-   rm -R arduino-"$arduinoToolchainVersion"-"$arduinoToolchainArchitecture".tar.xz
+   if [ "$os" == "Darwin" ]; then
+     unzip -q "$arduinoToolchainArchive" -d "$arduinoDir"
+   else
+     tar -xf "$arduinoToolchainArchive" -C "$arduinoDir" --strip 1
+   fi
+   rm -R "$arduinoToolchainArchive"
 }
 
 
@@ -82,17 +105,17 @@ getDependencies()
    echo -e "\nDownloading libraries ...\n"
 
    git clone https://github.com/kiyoshigawa/LiquidCrystal_I2C.git
-   rm -rf "$arduinoDir"/libraries/LiquidCrystal_I2C
-   mv -f LiquidCrystal_I2C/LiquidCrystal_I2C "$arduinoDir"/libraries/LiquidCrystal_I2C
+   rm -rf "$arduinoLibrariesDir"/LiquidCrystal_I2C
+   mv -f LiquidCrystal_I2C/LiquidCrystal_I2C "$arduinoLibrariesDir"/LiquidCrystal_I2C
    rm -rf LiquidCrystal_I2C
 
    git clone https://github.com/lincomatic/LiquidTWI2.git
-   rm -rf "$arduinoDir"/libraries/LiquidTWI2
-   mv -f LiquidTWI2 "$arduinoDir"/libraries/LiquidTWI2
+   rm -rf "$arduinoLibrariesDir"/LiquidTWI2
+   mv -f LiquidTWI2 "$arduinoLibrariesDir"/LiquidTWI2
    rm -rf LiquidTWI2
 
    git clone https://github.com/olikraus/U8glib_Arduino.git
-   mv -f U8glib_Arduino "$arduinoDir"/libraries/U8glib_Arduino
+   mv -f U8glib_Arduino "$arduinoLibrariesDir"/U8glib_Arduino
    rm -rf U8glib_Arduino
 }
 
@@ -157,7 +180,7 @@ getHardwareDefinition()
    
    repoName=$(basename "$hardwareDefinitionRepo" ".${hardwareDefinitionRepo##*.}")
    
-   mv -f $repoName/hardware/* "$arduinoDir"/hardware/
+   mv -f $repoName/hardware/* "$arduinoHardwareDir"
    rm -rf $repoName
    fi
 }
@@ -201,7 +224,7 @@ verifyBuild()
 {
    echo -e "\nVerifying build ...\n"
 
-   "$arduinoDir"/arduino --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+   "$arduinoExecutable" --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
    exit
 }
 
@@ -211,7 +234,7 @@ buildAndUpload()
 {
    echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
 
-   "$arduinoDir"/arduino --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+   "$arduinoExecutable" --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
    exit
 }
 
@@ -251,7 +274,7 @@ printDocu()
    exit
 }
 
-checkTools git tar wget
+checkTools "$tools"
 
 if [ "$1" = "" ]; then printDocu; exit 1; fi
 
