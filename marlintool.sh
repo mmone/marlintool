@@ -126,7 +126,6 @@ getDependencies()
      mv -f "$libName"/"$libDir" "$arduinoLibrariesDir"/"$libName"
      rm -rf "$libName"
    done
-   exit
 }
 
 ## Clone Marlin
