@@ -88,7 +88,7 @@ getArduinoToolchain()
    else
      wget http://downloads-02.arduino.cc/"$arduinoToolchainArchive"
    fi
-   mkdir "$arduinoDir"
+   mkdir -p "$arduinoDir/portable"
    echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
    if [ "$os" == "Darwin" ]; then
      unzip -q "$arduinoToolchainArchive" -d "$arduinoDir"
