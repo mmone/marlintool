@@ -10,6 +10,21 @@ marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
 # Leave empty to clone the default branch
 marlinRepositoryBranch=""
 
+# External libraries need to build some Marlin features
+# 'name,url,library directory path (optional)'
+# A library directory should only be specified if the library is not in the root of the repository.
+# The library directory is relative to the root of the repository.
+marlinDependencies=('LiquidCrystal_I2C,https://github.com/kiyoshigawa/LiquidCrystal_I2C.git,LiquidCrystal_I2C'
+                    'LiquidTWI2,https://github.com/lincomatic/LiquidTWI2.git'
+                    'U8glib_Arduino,https://github.com/olikraus/U8glib_Arduino.git'
+                    'TMC2130Stepper,https://github.com/teemuatlut/TMC2130Stepper.git'
+                    'TMC26XStepper,https://github.com/trinamic/TMC26XStepper.git'
+                    'TMC2208Stepper,https://github.com/teemuatlut/TMC2208Stepper'
+                    'Adafruit_NeoPixel,https://github.com/adafruit/Adafruit_NeoPixel.git'
+                    'SlowSoftI2CMaster,https://github.com/stawel/SlowSoftI2CMaster'
+                    'L6470,https://github.com/ameyer/Arduino-L6470,L6470'
+                   )
+
 # Anet board hardware definition repository URL.
 # Set to empty string if you don't need this.
 hardwareDefinitionRepo="https://github.com/SkyNet3D/anet-board.git"
@@ -104,19 +119,14 @@ getDependencies()
 {
    echo -e "\nDownloading libraries ...\n"
 
-   git clone https://github.com/kiyoshigawa/LiquidCrystal_I2C.git
-   rm -rf "$arduinoLibrariesDir"/LiquidCrystal_I2C
-   mv -f LiquidCrystal_I2C/LiquidCrystal_I2C "$arduinoLibrariesDir"/LiquidCrystal_I2C
-   rm -rf LiquidCrystal_I2C
-
-   git clone https://github.com/lincomatic/LiquidTWI2.git
-   rm -rf "$arduinoLibrariesDir"/LiquidTWI2
-   mv -f LiquidTWI2 "$arduinoLibrariesDir"/LiquidTWI2
-   rm -rf LiquidTWI2
-
-   git clone https://github.com/olikraus/U8glib_Arduino.git
-   mv -f U8glib_Arduino "$arduinoLibrariesDir"/U8glib_Arduino
-   rm -rf U8glib_Arduino
+   for library in ${marlinDependencies[@]}; do
+     IFS=',' read libName libUrl libDir <<< "$library"
+     git clone "$libUrl" "$libName"
+     rm -rf "$arduinoLibrariesDir"/"$libName"
+     mv -f "$libName"/"$libDir" "$arduinoLibrariesDir"/"$libName"
+     rm -rf "$libName"
+   done
+   exit
 }
 
 ## Clone Marlin
