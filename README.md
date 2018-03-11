@@ -8,7 +8,7 @@ This script sets up the build environment, collects dependencies and provides co
 
 In its default configuration the script is setup to build the official [Marlin firmware](https://github.com/MarlinFirmware/Marlin) but can be easily reconfigured to build any Marlin fork/variant.
 
-Several additional in the "*marlintool.params*" file allow to adapt the script to your needs.
+Several additional parameters in the "*marlintool.params*" file allow to adapt the script to your needs.
 
 | parameter	                  | description  |
 | --------------------------- | ------------ |
