@@ -2,30 +2,43 @@
 
 This script sets up the build environment, collects dependencies and provides commands for building and uploading Marlin from the commandline. It uses the official Arduino toolchain. Everything is standalone nothing is installed outside the marlintool directory.
 
-The script is setup by default to build the Marlin firmware [“Marlin”](https://github.com/MarlinFirmware/Marlin) but can be easily reconfigured to build any Marlin variant.
-Just change the "marlinRepositoryUrl" parameter at the beginning of the script to the respective github repository.
+### Build configuration
+
+**Before first use: Rename the [marlintool.params.example](marlintool.params.example) file to "marlintool.params"**
+
+In its default configuration the script is setup to build the Marlin firmware [“Marlin”](https://github.com/MarlinFirmware/Marlin) but can be easily reconfigured to build any Marlin variant.
+
+Several additional in the "*marlintool.params*" file allow to adapt the script to your needs.
+
+| parameter	                  | description  |
+| --------------------------- | ------------ |
+| **marlinRepositoryUrl**     | The marlin git repository. |
+| **marlinRepositoryBranch**  | The branch of the configured repo to use. |
+| **marlinDependencies**      | A list of dependencies to download in the format:<br> [name],[repo url],\[library directory](optional).<br>A library directory should only be specified if the library is not in the root of the repository. |
+| **hardwareDefinitionRepo**  | If you build for the Anet board this downloads the necessary hardware definition for the Arduino build environment. If you dont need this set it to an empty string. |
+| **boardString**             | The Anet board identifier. |
+| **arduinoToolchainVersion** | The Arduino toolchain version to use. The build platform and architecture are auto detected. At the moment Linux 32 Bit, 64 Bit, ARM and OS X are supported. |
+| **port**                    | The serialport to use for uploading. |
+| **arduinoDir**              | Where to put the Arduino toolchain. |
+| **marlinDir**               | Where to checkout Marlin sources.
+| **buildDir**                | The build directory. |
+
+
+
+
+## Building for Anet Hardware
 
 If you are building the firmware for the Anet A6/A8 you can find suitable example configurations in the Marlin sources at: [github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet](https://github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet). Just replace the "Configuration.h" and "Configuration_adv.h" in the marlin directory with the files your find there for a good starting point of your configuration.
 
-The script also downloads the necessary hardware/board definitions for the Anet hardware. If you do not need those because you use the ones that come with the toolchain, set the parameter “hardwareDefinitionRepo” to an empty string. This prevents the script from fetching the board definitions from github.
 
-
-Several parameters at the beginning of the script allow to adapt the script further to your needs.
-
-- If you would like to use a specific branch of a repository set the parameter "marlinRepositoryBranch" to the name of the branch.
-
-- If you do not need additional hardware/board definitions because you use the ones that come with the toolchain set the parameter “hardwareDefinitionRepo” to an empty string. This prevents the script from fetching the board definition that is needed for the A8 from github.
-
-- If you need additional libraries for your build add them to the "getDependencies" function.
-
-- The build platform and architecture are auto detected. At the moment Linux 32 Bit, 64 Bit, ARM and OS X are supported.
-
-Reminder: If you are running octopi on you Raspberry you need to disconnect it from your printer before uploading, otherwise the serial port is blocked.
+*Reminder: If you are running octopi on you Raspberry you need to disconnect it from your printer before uploading, otherwise the serial port is blocked.*
 
 *Note: On OS X due to how the Arduino toolchain is packaged the Arduino splash screen will be displayed even when the toolchain is used from the commandline. This will cause the terminal window you launch marlintool from to lose focus. It also means that a build cannot be launched from a remote ssh session.*
 
+
 Available commandline parameters
 =======================
+
 ### -s --setup
 
 	Download and configure the toolchain and the necessary libraries for building Marlin.
