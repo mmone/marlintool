@@ -3,39 +3,8 @@
 # by mmone with contribution by jhol, tssva
 # on github at https://github.com/mmone/marlintool
 
-# Official Marlin repository
-marlinRepositoryUrl="https://github.com/MarlinFirmware/Marlin"
-
-# Repository branch to use
-# Leave empty to clone the default branch
-marlinRepositoryBranch=""
-
-# External libraries need to build some Marlin features
-# 'name,url,library directory path (optional)'
-# A library directory should only be specified if the library is not in the root of the repository.
-# The library directory is relative to the root of the repository.
-marlinDependencies=('LiquidCrystal_I2C,https://github.com/kiyoshigawa/LiquidCrystal_I2C.git,LiquidCrystal_I2C'
-                    'LiquidTWI2,https://github.com/lincomatic/LiquidTWI2.git'
-                    'U8glib_Arduino,https://github.com/olikraus/U8glib_Arduino.git'
-                    'TMC2130Stepper,https://github.com/teemuatlut/TMC2130Stepper.git'
-                    'TMC26XStepper,https://github.com/trinamic/TMC26XStepper.git'
-                    'TMC2208Stepper,https://github.com/teemuatlut/TMC2208Stepper'
-                    'Adafruit_NeoPixel,https://github.com/adafruit/Adafruit_NeoPixel.git'
-                    'SlowSoftI2CMaster,https://github.com/stawel/SlowSoftI2CMaster'
-                    'L6470,https://github.com/ameyer/Arduino-L6470,L6470'
-                   )
-
-# Anet board hardware definition repository URL.
-# Set to empty string if you don't need this.
-hardwareDefinitionRepo="https://github.com/SkyNet3D/anet-board.git"
-
-# Anet board identifier.
-boardString="anet:avr:anet"
-
-# Arduino Mega
-# boardString="arduino:avr:mega:cpu=atmega2560"
-
-arduinoToolchainVersion="1.8.5"
+# The default config file to look for
+defaultParametersFile="marlintool.params"
 
 # Toolchain architecture
 arch=$(uname -m)
@@ -48,18 +17,6 @@ case $arch in
     exit 1
     ;;
 esac
-
-# Serialport for uploading
-port="/dev/ttyUSB0"
-
-# Where to put the arduino toolchain
-arduinoDir="./arduino"
-
-# Where to checkout Marlin sources
-marlinDir="Marlin"
-
-# Build directory
-buildDir="./build"
 
 # Operating system specific values
 os=$(uname -s)
@@ -77,6 +34,20 @@ else
   arduinoLibrariesDir="$arduinoDir/libraries"
 fi
 
+checkParametersFile()
+{
+   if [ -f $defaultParametersFile ]; then
+      source "$defaultParametersFile"
+   else
+      echo -e "\n ==================================================================="
+      echo -e "\n  Can't find $defaultParametersFile!"
+      echo -e "\n  Please rename the \"$defaultParametersFile.example\" file placed in the"
+      echo -e "  same directory as this script to \"$defaultParametersFile\" and edit"
+      echo -e "  if neccessary.\n"
+      echo -e " ===================================================================\n\n"
+      exit 1
+   fi
+}
 
 scriptName=$0
 
@@ -282,6 +253,8 @@ printDocu()
    echo
    exit
 }
+
+checkParametersFile
 
 checkTools "$tools"
 
