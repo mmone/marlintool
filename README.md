@@ -6,7 +6,7 @@ This script sets up the build environment, collects dependencies and provides co
 
 **Before first use: Rename the [marlintool.params.example](marlintool.params.example) file to "marlintool.params"**
 
-In its default configuration the script is setup to build the Marlin firmware [“Marlin”](https://github.com/MarlinFirmware/Marlin) but can be easily reconfigured to build any Marlin variant.
+In its default configuration the script is setup to build the official [Marlin firmware](https://github.com/MarlinFirmware/Marlin) but can be easily reconfigured to build any Marlin fork/variant.
 
 Several additional in the "*marlintool.params*" file allow to adapt the script to your needs.
 
@@ -24,16 +24,13 @@ Several additional in the "*marlintool.params*" file allow to adapt the script t
 | **buildDir**                | The build directory. |
 
 
-
-
-## Building for Anet Hardware
-
-If you are building the firmware for the Anet A6/A8 you can find suitable example configurations in the Marlin sources at: [github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet](https://github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet). Just replace the "Configuration.h" and "Configuration_adv.h" in the marlin directory with the files your find there for a good starting point of your configuration.
-
-
 *Reminder: If you are running octopi on you Raspberry you need to disconnect it from your printer before uploading, otherwise the serial port is blocked.*
 
 *Note: On OS X due to how the Arduino toolchain is packaged the Arduino splash screen will be displayed even when the toolchain is used from the commandline. This will cause the terminal window you launch marlintool from to lose focus. It also means that a build cannot be launched from a remote ssh session.*
+
+### Building for Anet Hardware
+
+If you are building the firmware for the Anet A6/A8 you can find suitable example configurations in the Marlin sources at: [github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet](https://github.com/MarlinFirmware/Marlin/tree/1.1.x/Marlin/example_configurations/Anet). Just replace the "Configuration.h" and "Configuration_adv.h" in the marlin directory with the files your find there for a good starting point of your configuration.
 
 
 Available commandline parameters
