@@ -6,49 +6,6 @@
 # The default config file to look for
 defaultParametersFile="marlintool.params"
 
-# Toolchain architecture
-arch=$(uname -m)
-case $arch in
-  arm*) arduinoToolchainArchitecture="linuxarm" ;;
-  i386|i486|i586|i686) arduinoToolchainArchitecture="linux32" ;;
-  x86_64) arduinoToolchainArchitecture="linux64" ;;
-  *)
-    >&2 echo "Unsuppored platform architecture: $arch"
-    exit 1
-    ;;
-esac
-
-# Operating system specific values
-os=$(uname -s)
-if [ "$os" == "Darwin" ]; then
-  tools="git unzip curl"
-  arduinoToolchainArchive="arduino-$arduinoToolchainVersion-macosx.zip"
-  arduinoExecutable="$arduinoDir/Arduino.app/Contents/MacOS/Arduino"
-  arduinoHardwareDir="$arduinoDir/Arduino.app/Contents/Java/hardware"
-  arduinoLibrariesDir="$arduinoDir/Arduino.app/Contents/Java/libraries"
-else
-  tools="git tar wget"
-  arduinoToolchainArchive="arduino-$arduinoToolchainVersion-$arduinoToolchainArchitecture.tar.xz"
-  arduinoExecutable="$arduinoDir/arduino"
-  arduinoHardwareDir="$arduinoDir/hardware"
-  arduinoLibrariesDir="$arduinoDir/libraries"
-fi
-
-checkParametersFile()
-{
-   if [ -f $defaultParametersFile ]; then
-      source "$defaultParametersFile"
-   else
-      echo -e "\n ==================================================================="
-      echo -e "\n  Can't find $defaultParametersFile!"
-      echo -e "\n  Please rename the \"$defaultParametersFile.example\" file placed in the"
-      echo -e "  same directory as this script to \"$defaultParametersFile\" and edit"
-      echo -e "  if neccessary.\n"
-      echo -e " ===================================================================\n\n"
-      exit 1
-   fi
-}
-
 scriptName=$0
 
 ## Checks that the tools listed in arguments are all installed.
@@ -254,7 +211,48 @@ printDocu()
    exit
 }
 
-checkParametersFile
+# Check for parameters file and source it if available
+
+if [ -f $defaultParametersFile ]; then
+   source "$defaultParametersFile"
+else
+   echo -e "\n ==================================================================="
+   echo -e "\n  Can't find $defaultParametersFile!"
+   echo -e "\n  Please rename the \"$defaultParametersFile.example\" file placed in the"
+   echo -e "  same directory as this script to \"$defaultParametersFile\" and edit"
+   echo -e "  if neccessary.\n"
+   echo -e " ===================================================================\n\n"
+   exit 1
+fi
+
+# Toolchain architecture
+arch=$(uname -m)
+case $arch in
+  arm*) arduinoToolchainArchitecture="linuxarm" ;;
+  i386|i486|i586|i686) arduinoToolchainArchitecture="linux32" ;;
+  x86_64) arduinoToolchainArchitecture="linux64" ;;
+  *)
+    >&2 echo "Unsuppored platform architecture: $arch"
+    exit 1
+    ;;
+esac
+
+# Operating system specific values
+os=$(uname -s)
+if [ "$os" == "Darwin" ]; then
+  tools="git unzip curl"
+  arduinoToolchainArchive="arduino-$arduinoToolchainVersion-macosx.zip"
+  arduinoExecutable="$arduinoDir/Arduino.app/Contents/MacOS/Arduino"
+  arduinoHardwareDir="$arduinoDir/Arduino.app/Contents/Java/hardware"
+  arduinoLibrariesDir="$arduinoDir/Arduino.app/Contents/Java/libraries"
+else
+  tools="git tar wget"
+  arduinoToolchainArchive="arduino-$arduinoToolchainVersion-$arduinoToolchainArchitecture.tar.xz"
+  arduinoExecutable="$arduinoDir/arduino"
+  arduinoHardwareDir="$arduinoDir/hardware"
+  arduinoLibrariesDir="$arduinoDir/libraries"
+fi
+
 
 checkTools "$tools"
 
