@@ -105,7 +105,7 @@ setupEnvironment()
    exit
 }
 
-## Fetch and install anet board hardware definition
+## Fetch and install board hardware definition
 getHardwareDefinition()
 {
    if [ "$hardwareDefinitionRepo" != "" ]; then
@@ -116,9 +116,10 @@ getHardwareDefinition()
    echo -e "\nMoving board hardware definition into arduino directory ... \n"
    
    repoName=$(basename "$hardwareDefinitionRepo" ".${hardwareDefinitionRepo##*.}")
+   if ["$hardwareDefinitionDir" == ""]; then $hardwareDefinitionDir="hardware/*"; fi
    
-   mv -f $repoName/hardware/* "$arduinoHardwareDir"
-   rm -rf $repoName
+   mv -f "$repoName"/"$hardwareDefinitionDir" "$arduinoHardwareDir"
+   rm -rf "$repoName"
    fi
 }
 
