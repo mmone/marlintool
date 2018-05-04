@@ -7,7 +7,8 @@ marlinRepositoryBranch=""
 
 # External libraries need to build some Marlin features
 # 'name,url,library directory path (optional)'
-# A library directory should only be specified if the library is not in the root of the repository.
+# A library directory should only be specified if the library is not in the
+# root of the repository.
 # The library directory is relative to the root of the repository.
 marlinDependencies=('LiquidCrystal_I2C,https://github.com/kiyoshigawa/LiquidCrystal_I2C.git,LiquidCrystal_I2C'
                     'LiquidTWI2,https://github.com/lincomatic/LiquidTWI2.git'
@@ -20,13 +21,18 @@ marlinDependencies=('LiquidCrystal_I2C,https://github.com/kiyoshigawa/LiquidCrys
 #                    'L6470,https://github.com/ameyer/Arduino-L6470,L6470'
                    )
 
-# Anet board hardware definition repository URL.
+# Hardware definition repository
 # Set to empty string if you don't need this.
-hardwareDefinitionRepo="https://github.com/SkyNet3D/anet-board.git"
+hardwareDefinitionRepo='https://github.com/SkyNet3D/anet-board.git,hardware/anet'
 
-# Anet board identifier.
+# Hardware definition directory
+# A definition directory should only be specified if the definition is not
+# in a directory named 'hardware' in the repository.
+hardwareDefinitionDir=""
+
+# Board identifier
+# Anet
 boardString="anet:avr:anet"
-
 # Arduino Mega
 # boardString="arduino:avr:mega:cpu=atmega2560"
 
@@ -43,3 +49,4 @@ marlinDir="Marlin"
 
 # Build directory
 buildDir="./build"
+
