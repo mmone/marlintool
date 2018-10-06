@@ -49,11 +49,11 @@ downloadFile()
 ## Download the toolchain and unpack it
 getArduinoToolchain()
 {
-  echo -e "\nDownloading Arduino environment ...\n"
+  >&$l echo -e "\nDownloading Arduino environment ...\n"
 
   downloadFile http://downloads-02.arduino.cc/"$arduinoToolchainArchive" $arduinoToolchainArchive
   mkdir -p "$arduinoDir/portable"
-  echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
+  >&$l echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
   if [ "$os" == "Darwin" ]; then
     unzip -q "$arduinoToolchainArchive" -d "$arduinoDir"
   else
@@ -66,7 +66,7 @@ getArduinoToolchain()
 ## Get dependencies and move them in place
 getDependencies()
 {
-  echo -e "\nDownloading libraries ...\n"
+  >&$l echo -e "\nDownloading libraries ...\n"
 
   for library in ${marlinDependencies[@]}; do
     IFS=',' read libName libUrl libDir <<< "$library"
@@ -80,7 +80,7 @@ getDependencies()
 ## Clone Marlin
 getMarlin()
 {
-  echo -e "\nCloning Marlin \"$marlinRepositoryUrl\" ...\n"
+  >&$l echo -e "\nCloning Marlin \"$marlinRepositoryUrl\" ...\n"
 
   if [ "$marlinRepositoryBranch" != "" ]; then
     git clone -b "$marlinRepositoryBranch" --single-branch "$marlinRepositoryUrl" "$marlinDir"
@@ -101,13 +101,13 @@ checkoutMarlin()
 
   cd $marlinDir
 
-  echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\" ...\n"
+  >&$l echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\" ...\n"
 
   git fetch
   git checkout
   git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
 
-  echo -e "\n"
+  >&$l echo -e "\n"
 
   cd ..
 
@@ -119,7 +119,7 @@ checkoutMarlin()
 ## Get the toolchain and Marlin, install board definition
 setupEnvironment()
 {
-  echo -e "\nSetting up build environment in \"$arduinoDir\" ...\n"
+  >&$l echo -e "\nSetting up build environment in \"$arduinoDir\" ...\n"
   getArduinoToolchain
   getDependencies
   getHardwareDefinition
@@ -130,10 +130,10 @@ setupEnvironment()
 getHardwareDefinition()
 {
   if [ "$hardwareDefinitionRepo" != "" ]; then
-    echo -e "\nCloning board hardware definition from \"$hardwareDefinitionRepo\" ... \n"
+    >&$l echo -e "\nCloning board hardware definition from \"$hardwareDefinitionRepo\" ... \n"
     git clone "$hardwareDefinitionRepo"
 
-    echo -e "\nMoving board hardware definition into arduino directory ... \n"
+    >&$l echo -e "\nMoving board hardware definition into arduino directory ... \n"
 
     repoName=$(basename "$hardwareDefinitionRepo" ".${hardwareDefinitionRepo##*.}")
 
@@ -147,10 +147,10 @@ getHardwareDefinition()
 ## param #1 backup name
 backupMarlinConfiguration()
 {
-  echo -e "\nSaving Marlin configuration\n"
-  echo -e "  \"Configuration.h\""
-  echo -e "  \"Configuration_adv.h\""
-  echo -e "\nto \"./configuration/$backupName/\"\n"
+  >&$l echo -e "\nSaving Marlin configuration\n"
+  >&$l echo -e "  \"Configuration.h\""
+  >&$l echo -e "  \"Configuration_adv.h\""
+  >&$l echo -e "\nto \"./configuration/$backupName/\"\n"
 
   mkdir -p configuration/$backupName
 
@@ -163,15 +163,15 @@ backupMarlinConfiguration()
 restoreMarlinConfiguration()
 {
   if [ -d "configuration/$backupName" ]; then
-    echo -e "Restoring Marlin configuration\n"
-    echo -e "  \"Configuration.h\""
-    echo -e "  \"Configuration_adv.h\""
-    echo -e "\nfrom \"./configuration/$backupName/\"\n"
+    >&$l echo -e "Restoring Marlin configuration\n"
+    >&$l echo -e "  \"Configuration.h\""
+    >&$l echo -e "  \"Configuration_adv.h\""
+    >&$l echo -e "\nfrom \"./configuration/$backupName/\"\n"
 
     cp configuration/"$backupName"/Configuration.h "$marlinDir"/Marlin/
     cp configuration/"$backupName"/Configuration_adv.h "$marlinDir"/Marlin/
   else
-    echo -e "\nBackup configuration/$backupName not found!\n"
+    >&2 echo -e "\nBackup configuration/$backupName not found!\n"
   fi
   exit
 }
@@ -179,7 +179,7 @@ restoreMarlinConfiguration()
 ## Build Marlin
 verifyBuild()
 {
-  echo -e "\nVerifying build ...\n"
+  >&$l echo -e "\nVerifying build ...\n"
 
   "$arduinoExecutable" --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
   exit
@@ -189,7 +189,7 @@ verifyBuild()
 ## Build Marlin and upload 
 buildAndUpload()
 {
-  echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
+  >&$l echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
 
   "$arduinoExecutable" --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
   exit
@@ -208,9 +208,12 @@ cleanEverything()
 printUsage()
 {
   echo "Usage:"
-  echo " $scriptName <command> [<args>]"
+  echo " $scriptName [-q] <command> [<args>]"
   echo
   echo "Builds an installs Marlin 3D printer firmware."
+  echo
+  echo "Options:"
+  echo "   -q, --quiet              Don't print status messages."
   echo
   echo "Commands:"
   echo "   setup                    Download and configure the toolchain and the"
@@ -237,12 +240,12 @@ printUsage()
 if [ -f $defaultParametersFile ]; then
   source "$defaultParametersFile"
 else
-  echo -e "\n ==================================================================="
-  echo -e "\n  Can't find $defaultParametersFile!"
-  echo -e "\n  Please rename the \"$defaultParametersFile.example\" file placed in the"
-  echo -e "  same directory as this script to \"$defaultParametersFile\" and edit"
-  echo -e "  if neccessary.\n"
-  echo -e " ===================================================================\n\n"
+  >&2 echo -e "\n ==================================================================="
+  >&2 echo -e "\n  Can't find $defaultParametersFile!"
+  >&2 echo -e "\n  Please rename the \"$defaultParametersFile.example\" file placed in the"
+  >&2 echo -e "  same directory as this script to \"$defaultParametersFile\" and edit"
+  >&2 echo -e "  if neccessary.\n"
+  >&2 echo -e " ===================================================================\n\n"
   exit 1
 fi
 
@@ -293,6 +296,7 @@ parseBackupRestoreArgument() {
   fi
 }
 
+quiet=
 verb=''
 
 while [ "x$verb" = "x" ]; do
@@ -314,6 +318,7 @@ while [ "x$verb" = "x" ]; do
       ;;
     clean) verb=cleanEverything;;
     help|-h|--help) verb=printUsage;;
+    -q|--quiet) quiet=y;;
     *)
       printUsage >&2
       exit 1
@@ -352,5 +357,7 @@ case $verb in
     done
     ;;
 esac
+
+[ "x$quiet" = "xy" ] && exec {l}>/dev/null || exec {l}>&1
 
 $verb
