@@ -46,6 +46,21 @@ downloadFile()
   fi
 }
 
+unpackArchive()
+{
+  local archive=$1
+  local dir=$2
+
+  case $archive in
+    *.zip)
+      unzip -q "$archive" -d "$dir"
+      ;;
+    *.tar.*)
+      tar -xf "$archive" -C "$dir" --strip 1
+      ;;
+  esac
+}
+
 ## Download the toolchain and unpack it
 getArduinoToolchain()
 {
@@ -54,11 +69,7 @@ getArduinoToolchain()
   downloadFile http://downloads-02.arduino.cc/"$arduinoToolchainArchive" $arduinoToolchainArchive
   mkdir -p "$arduinoDir/portable"
   >&$l echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
-  if [ "$os" == "Darwin" ]; then
-    unzip -q "$arduinoToolchainArchive" -d "$arduinoDir"
-  else
-    tar -xf "$arduinoToolchainArchive" -C "$arduinoDir" --strip 1
-  fi
+  unpackArchive "$arduinoToolchainArchive" "$arduinoDir"
   rm -R "$arduinoToolchainArchive"
 }
 
@@ -264,13 +275,11 @@ esac
 # Operating system specific values
 os=$(uname -s)
 if [ "$os" == "Darwin" ]; then
-  tools="git unzip"
   arduinoToolchainArchive="arduino-$arduinoToolchainVersion-macosx.zip"
   arduinoExecutable="$arduinoDir/Arduino.app/Contents/MacOS/Arduino"
   arduinoHardwareDir="$arduinoDir/Arduino.app/Contents/Java/hardware"
   arduinoLibrariesDir="$arduinoDir/Arduino.app/Contents/Java/libraries"
 else
-  tools="git tar"
   arduinoToolchainArchive="arduino-$arduinoToolchainVersion-$arduinoToolchainArchitecture.tar.xz"
   arduinoExecutable="$arduinoDir/arduino"
   arduinoHardwareDir="$arduinoDir/hardware"
@@ -278,7 +287,7 @@ else
 fi
 
 
-checkTools "$tools"
+checkTools git tar unzip
 checkCurlWget
 
 if [ $# -lt 1 ]; then
