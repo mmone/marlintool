@@ -131,6 +131,10 @@ getDependencies()
   >&$l echo -e "\nGetting libraries..."
 
   for library in ${marlinDependencies[@]}; do
+    local libName=
+    local libUrl=
+    local libDir=
+
     IFS=',' read libName libUrl libDir <<< "$library"
     local libRepo=$(getGitRepo "$libUrl" "")
     mv -f "$libRepo/$libDir" "$arduinoLibrariesDir/$libName"
