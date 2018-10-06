@@ -34,17 +34,24 @@ checkCurlWget()
   fi
 }
 
+downloadFile()
+{
+  local url=$1
+  local file=$2
+
+  if [ "$curl" != "" ]; then
+    $curl -o "$file" "$url"
+  else
+    $wget -O "$file" "$url"
+  fi
+}
+
 ## Download the toolchain and unpack it
 getArduinoToolchain()
 {
   echo -e "\nDownloading Arduino environment ...\n"
 
-  local url=http://downloads-02.arduino.cc/"$arduinoToolchainArchive"
-  if [ "$curl" != "" ]; then
-    $curl -o "$arduinoToolchainArchive" $url
-  else
-    $wget $url
-  fi
+  downloadFile http://downloads-02.arduino.cc/"$arduinoToolchainArchive" $arduinoToolchainArchive
   mkdir -p "$arduinoDir/portable"
   echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
   if [ "$os" == "Darwin" ]; then
