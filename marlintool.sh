@@ -22,16 +22,25 @@ checkTools()
   done
 }
 
+checkCurlWget()
+{
+  if ! curl=$(command -v curl) && ! wget=$(command -v wget); then
+    >&2 echo "Neither curl nor wget were found installed"
+    >&2 echo
+    exit 1
+  fi
+}
+
 ## Download the toolchain and unpack it
 getArduinoToolchain()
 {
   echo -e "\nDownloading Arduino environment ...\n"
 
   local url=http://downloads-02.arduino.cc/"$arduinoToolchainArchive"
-  if [ "$os" == "Darwin" ]; then
-    curl -o "$arduinoToolchainArchive" $url
+  if [ "$curl" != "" ]; then
+    $curl -o "$arduinoToolchainArchive" $url
   else
-    wget $url
+    $wget $url
   fi
   mkdir -p "$arduinoDir/portable"
   echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
@@ -241,13 +250,13 @@ esac
 # Operating system specific values
 os=$(uname -s)
 if [ "$os" == "Darwin" ]; then
-  tools="git unzip curl"
+  tools="git unzip"
   arduinoToolchainArchive="arduino-$arduinoToolchainVersion-macosx.zip"
   arduinoExecutable="$arduinoDir/Arduino.app/Contents/MacOS/Arduino"
   arduinoHardwareDir="$arduinoDir/Arduino.app/Contents/Java/hardware"
   arduinoLibrariesDir="$arduinoDir/Arduino.app/Contents/Java/libraries"
 else
-  tools="git tar wget"
+  tools="git tar"
   arduinoToolchainArchive="arduino-$arduinoToolchainVersion-$arduinoToolchainArchitecture.tar.xz"
   arduinoExecutable="$arduinoDir/arduino"
   arduinoHardwareDir="$arduinoDir/hardware"
@@ -256,6 +265,7 @@ fi
 
 
 checkTools "$tools"
+checkCurlWget
 
 if [ "$1" = "" ]; then
   printDocu; exit 1; fi
