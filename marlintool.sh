@@ -114,6 +114,7 @@ getArduinoToolchain()
   >&$l echo -e "\nGetting Arduino environment..."
 
   local archive=$(getFile http://downloads-02.arduino.cc/"$arduinoToolchainArchive" $arduinoToolchainArchive)
+  rm -rf "$arduinoDir"
   mkdir -p "$arduinoDir/portable"
   >&$l echo "  Unpacking (this might take a while)..."
   if [ "$os" == "Darwin" ]; then
