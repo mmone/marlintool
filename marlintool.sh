@@ -12,7 +12,7 @@ scriptName=$0
 checkTools()
 {
   for cmd in "$@"; do
-    type -p $cmd >/dev/null || [ -x /usr/bin/$cmd ] || [ -x /bin/$cmd ] || [ -x /sbin/$cmd ] || {
+    command -v $cmd >/dev/null || {
       >&2 echo "The following tools must be installed:"
       >&2 echo "  $@"
       >&2 echo "  Failed to find $cmd"
