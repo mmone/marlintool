@@ -36,6 +36,11 @@ checkCurlWget()
   fi
 }
 
+gitRepoName()
+{
+  basename "$1" ".${1##*.}"
+}
+
 getFile()
 {
   local url=$1
@@ -59,6 +64,33 @@ getFile()
   fi
 
   echo $cacheFile
+}
+
+getGitRepo()
+{
+  local url=$1
+  local branch=$2
+
+  local repoName=$(gitRepoName $url)
+  local repoDir=$tmpDir/$repoName
+  local cacheRepo=$cacheDir/$repoName
+
+  if [ -d $cacheRepo ]; then
+    >&$l echo "  Updating repository from $url..."
+    (cd $cacheRepo; 2>&$o git fetch -p origin)
+  else
+    >&$l echo "  Cloning repository from $url..."
+    >&$o git clone --bare $url $cacheRepo 2>&1
+  fi
+
+  >&$l echo "    Copying from cache..."
+  if [ "$marlinRepositoryBranch" != "" ]; then
+    >&$o git clone -b "$branch" --single-branch $cacheRepo $repoDir 2>&1
+  else
+    >&$o git clone $cacheRepo $repoDir 2>&1
+  fi
+
+  echo $repoDir
 }
 
 unpackArchive()
@@ -95,50 +127,46 @@ getArduinoToolchain()
 ## Get dependencies and move them in place
 getDependencies()
 {
-  >&$l echo -e "\nDownloading libraries ...\n"
+  >&$l echo -e "\nGetting libraries..."
 
   for library in ${marlinDependencies[@]}; do
     IFS=',' read libName libUrl libDir <<< "$library"
-    >&$o git clone "$libUrl" "$libName"
-    rm -rf "$arduinoLibrariesDir"/"$libName"
-    mv -f "$libName"/"$libDir" "$arduinoLibrariesDir"/"$libName"
-    rm -rf "$libName"
+    local libRepo=$(getGitRepo "$libUrl" "")
+    mv -f "$libRepo/$libDir" "$arduinoLibrariesDir/$libName"
+    rm -rf "$libRepo"
   done
 }
 
 ## Clone Marlin
 getMarlin()
 {
-  >&$l echo -e "\nCloning Marlin \"$marlinRepositoryUrl\" ...\n"
-
-  if [ "$marlinRepositoryBranch" != "" ]; then
-    >&$o git clone -b "$marlinRepositoryBranch" --single-branch "$marlinRepositoryUrl" "$marlinDir"
-  else
-    >&$o git clone "$marlinRepositoryUrl" "$marlinDir"
-  fi
-
+  >&$l echo -e "\nGetting Marlin..."
+  local repoDir=$(getGitRepo "$marlinRepositoryUrl" "$marlinRepositoryBranch")
+  rm -rf "$marlinDir"
+  mv "$repoDir" "$marlinDir"
   exit
 }
 
 ## Update an existing Marlin clone
 checkoutMarlin()
 {
+  local cacheRepo=$cacheDir/Marlin
+
   backupName=`date +%Y-%m-%d-%H-%M-%S`
-
-  # backup configuration
   backupMarlinConfiguration
-
-  cd $marlinDir
 
   >&$l echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\" ...\n"
 
-  >&$o git fetch
-  >&$o git checkout
-  >&$o git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
-
-  >&$l echo -e "\n"
-
-  cd ..
+  (
+    cd $cacheRepo
+    2>&$o git fetch -p origin
+  )
+  (
+    cd $marlinDir
+    >&$o git fetch -p origin
+    >&$o git checkout
+    >&$o git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
+  )
 
   restoreMarlinConfiguration
   exit
@@ -159,15 +187,13 @@ setupEnvironment()
 getHardwareDefinition()
 {
   if [ "$hardwareDefinitionRepo" != "" ]; then
-    >&$l echo -e "\nCloning board hardware definition from \"$hardwareDefinitionRepo\" ... \n"
-    >&$o git clone "$hardwareDefinitionRepo"
+    >&$l echo -e "\nGetting board hardware definition..."
+    local repoPath=$(getGitRepo "$hardwareDefinitionRepo" "")
 
-    >&$l echo -e "\nMoving board hardware definition into arduino directory ... \n"
+    >&$l echo "  Moving board hardware definition into arduino directory..."
 
-    repoName=$(basename "$hardwareDefinitionRepo" ".${hardwareDefinitionRepo##*.}")
-
-    mv -f $repoName/hardware/* "$arduinoHardwareDir"
-    rm -rf $repoName
+    mv -f $repoPath/hardware/* "$arduinoHardwareDir"
+    rm -rf $repoPath
   fi
 }
 
