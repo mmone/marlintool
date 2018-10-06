@@ -9,6 +9,8 @@ set -u
 # The default config file to look for
 defaultParametersFile="marlintool.params"
 
+cacheDir=$PWD/.cache
+
 scriptName=$0
 
 ## Checks that the tools listed in arguments are all installed.
@@ -34,16 +36,29 @@ checkCurlWget()
   fi
 }
 
-downloadFile()
+getFile()
 {
   local url=$1
   local file=$2
+  local cacheFile=$cacheDir/$file
 
-  if [ "$curl" != "" ]; then
-    >&$o $curl -o "$file" "$url"
+  if [ ! -f $cacheFile ]; then
+    >&$l echo "  Downloading from $url..."
+
+    local downloadTmpFile=$tmpDir/download
+    if [ "$curl" != "" ]; then
+      >&$o $curl -o "$downloadTmpFile" "$url"
+    else
+      >&$o $wget -O "$downloadTmpFile" "$url"
+    fi
+
+    mkdir -p $cacheDir
+    mv $downloadTmpFile $cacheFile
   else
-    >&$o $wget -O "$file" "$url"
+    >&$l echo "  Retrieving $(basename $file) from cache..."
   fi
+
+  echo $cacheFile
 }
 
 unpackArchive()
@@ -64,13 +79,16 @@ unpackArchive()
 ## Download the toolchain and unpack it
 getArduinoToolchain()
 {
-  >&$l echo -e "\nDownloading Arduino environment ...\n"
+  >&$l echo -e "\nGetting Arduino environment..."
 
-  downloadFile http://downloads-02.arduino.cc/"$arduinoToolchainArchive" $arduinoToolchainArchive
+  local archive=$(getFile http://downloads-02.arduino.cc/"$arduinoToolchainArchive" $arduinoToolchainArchive)
   mkdir -p "$arduinoDir/portable"
-  >&$l echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
-  unpackArchive "$arduinoToolchainArchive" "$arduinoDir"
-  rm -R "$arduinoToolchainArchive"
+  >&$l echo "  Unpacking (this might take a while)..."
+  if [ "$os" == "Darwin" ]; then
+    >&$o unzip -q "$archive" -d "$arduinoDir"
+  else
+    >&$o tar -xf "$archive" -C "$arduinoDir" --strip 1
+  fi
 }
 
 
@@ -231,6 +249,12 @@ cleanEverything()
   rm -Rf "$buildDir"
 }
 
+## Delete everything that was downloaded
+cleanCache()
+{
+  rm -Rf "$cacheDir"
+}
+
 ## Print help
 printUsage()
 {
@@ -257,10 +281,16 @@ printUsage()
   echo "   restore-config <name>    Restore the Marlin given configuration."
   echo
   echo "   clean                    Remove Arduino tool-chain and Marlin sources."
+  echo "   clean-cache              Clean up the download cache."
   echo
   echo "   help                     Show help."
   echo
   exit
+}
+
+onExit()
+{
+  rm -rf $tmpDir
 }
 
 # Check for parameters file and source it if available
@@ -268,14 +298,18 @@ printUsage()
 if [ -f $defaultParametersFile ]; then
   source "$defaultParametersFile"
 else
-  >&2 echo -e "\n ==================================================================="
-  >&2 echo -e "\n  Can't find $defaultParametersFile!"
-  >&2 echo -e "\n  Please rename the \"$defaultParametersFile.example\" file placed in the"
-  >&2 echo -e "  same directory as this script to \"$defaultParametersFile\" and edit"
-  >&2 echo -e "  if neccessary.\n"
-  >&2 echo -e " ===================================================================\n\n"
+  echo -e "\n ==================================================================="
+  echo -e "\n  Can't find $defaultParametersFile!"
+  echo -e "\n  Please rename the \"$defaultParametersFile.example\" file placed in the"
+  echo -e "  same directory as this script to \"$defaultParametersFile\" and edit"
+  echo -e "  if neccessary.\n"
+  echo -e " ===================================================================\n\n"
   exit 1
 fi
+
+# Temporary directory
+tmpDir=$(mktemp -d "${TMPDIR:-/tmp}/marlintool.XXXXXX")
+trap "onExit" EXIT
 
 # Toolchain architecture
 arch=$(uname -m)
@@ -344,6 +378,7 @@ while [ "x$verb" = "x" ]; do
       backupName=$(parseBackupRestoreArgument $@)
       ;;
     clean) verb=cleanEverything;;
+    clean-cache) verb=cleanCache;;
     help|-h|--help) verb=printUsage;;
     -q|--quiet) quiet=y;;
     -v|--verbose) verbose=y;;
