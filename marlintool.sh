@@ -40,9 +40,9 @@ downloadFile()
   local file=$2
 
   if [ "$curl" != "" ]; then
-    $curl -o "$file" "$url"
+    >&$o $curl -o "$file" "$url"
   else
-    $wget -O "$file" "$url"
+    >&$o $wget -O "$file" "$url"
   fi
 }
 
@@ -53,10 +53,10 @@ unpackArchive()
 
   case $archive in
     *.zip)
-      unzip -q "$archive" -d "$dir"
+      >&$o unzip -q "$archive" -d "$dir"
       ;;
     *.tar.*)
-      tar -xf "$archive" -C "$dir" --strip 1
+      >&$o tar -xf "$archive" -C "$dir" --strip 1
       ;;
   esac
 }
@@ -81,7 +81,7 @@ getDependencies()
 
   for library in ${marlinDependencies[@]}; do
     IFS=',' read libName libUrl libDir <<< "$library"
-    git clone "$libUrl" "$libName"
+    >&$o git clone "$libUrl" "$libName"
     rm -rf "$arduinoLibrariesDir"/"$libName"
     mv -f "$libName"/"$libDir" "$arduinoLibrariesDir"/"$libName"
     rm -rf "$libName"
@@ -94,9 +94,9 @@ getMarlin()
   >&$l echo -e "\nCloning Marlin \"$marlinRepositoryUrl\" ...\n"
 
   if [ "$marlinRepositoryBranch" != "" ]; then
-    git clone -b "$marlinRepositoryBranch" --single-branch "$marlinRepositoryUrl" "$marlinDir"
+    >&$o git clone -b "$marlinRepositoryBranch" --single-branch "$marlinRepositoryUrl" "$marlinDir"
   else
-    git clone "$marlinRepositoryUrl" "$marlinDir"
+    >&$o git clone "$marlinRepositoryUrl" "$marlinDir"
   fi
 
   exit
@@ -114,9 +114,9 @@ checkoutMarlin()
 
   >&$l echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\" ...\n"
 
-  git fetch
-  git checkout
-  git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
+  >&$o git fetch
+  >&$o git checkout
+  >&$o git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
 
   >&$l echo -e "\n"
 
@@ -142,7 +142,7 @@ getHardwareDefinition()
 {
   if [ "$hardwareDefinitionRepo" != "" ]; then
     >&$l echo -e "\nCloning board hardware definition from \"$hardwareDefinitionRepo\" ... \n"
-    git clone "$hardwareDefinitionRepo"
+    >&$o git clone "$hardwareDefinitionRepo"
 
     >&$l echo -e "\nMoving board hardware definition into arduino directory ... \n"
 
@@ -192,7 +192,15 @@ verifyBuild()
 {
   >&$l echo -e "\nVerifying build ...\n"
 
-  "$arduinoExecutable" --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+  if >&$o "$arduinoExecutable" --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino \
+      --pref build.path="$buildDir" 2>&1 ; then
+    >&$l echo "Build successful."
+  else
+    >&2 echo "Build failed."
+    >&2 echo
+    exit 1
+  fi
+
   exit
 }
 
@@ -202,7 +210,15 @@ buildAndUpload()
 {
   >&$l echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
 
-  "$arduinoExecutable" --upload --port "$port" --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir"
+  if >&$o "$arduinoExecutable" --upload --port "$port" --verbose --board "$boardString" \
+      "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir" 2>&1 ; then
+    >&$l echo "Build and upload successful."
+  else
+    >&2 echo "Build and upload failed."
+    >&2 echo
+    exit 1
+  fi
+
   exit
 }
 
@@ -225,6 +241,7 @@ printUsage()
   echo
   echo "Options:"
   echo "   -q, --quiet              Don't print status messages."
+  echo "   -v, --verbose            Print the output of sub-processes."
   echo
   echo "Commands:"
   echo "   setup                    Download and configure the toolchain and the"
@@ -306,6 +323,7 @@ parseBackupRestoreArgument() {
 }
 
 quiet=
+verbose=
 verb=''
 
 while [ "x$verb" = "x" ]; do
@@ -328,6 +346,7 @@ while [ "x$verb" = "x" ]; do
     clean) verb=cleanEverything;;
     help|-h|--help) verb=printUsage;;
     -q|--quiet) quiet=y;;
+    -v|--verbose) verbose=y;;
     *)
       printUsage >&2
       exit 1
@@ -368,5 +387,6 @@ case $verb in
 esac
 
 [ "x$quiet" = "xy" ] && exec {l}>/dev/null || exec {l}>&1
+[ "x$verbose" = "xy" ] && exec {o}>&1 || exec {o}>/dev/null
 
 $verb
