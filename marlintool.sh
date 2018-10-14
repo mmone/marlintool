@@ -94,10 +94,10 @@ getMarlin()
 ## Update an existing Marlin clone
 checkoutMarlin()
 {
-  date=`date +%Y-%m-%d-%H-%M-%S`
+  backupName=`date +%Y-%m-%d-%H-%M-%S`
 
   # backup configuration
-  backupMarlinConfiguration $date
+  backupMarlinConfiguration
 
   cd $marlinDir
 
@@ -111,7 +111,7 @@ checkoutMarlin()
 
   cd ..
 
-  restoreMarlinConfiguration $date
+  restoreMarlinConfiguration
   exit
 }
 
@@ -150,28 +150,28 @@ backupMarlinConfiguration()
   echo -e "\nSaving Marlin configuration\n"
   echo -e "  \"Configuration.h\""
   echo -e "  \"Configuration_adv.h\""
-  echo -e "\nto \"./configuration/$1/\"\n"
+  echo -e "\nto \"./configuration/$backupName/\"\n"
 
-  mkdir -p configuration/$1
+  mkdir -p configuration/$backupName
 
-  cp "$marlinDir"/Marlin/Configuration.h configuration/"$1"
-  cp "$marlinDir"/Marlin/Configuration_adv.h configuration/"$1"
+  cp "$marlinDir"/Marlin/Configuration.h configuration/"$backupName"
+  cp "$marlinDir"/Marlin/Configuration_adv.h configuration/"$backupName"
 }
 
 ## Restore Marlin Configuration from backup
 ## param #1 backup name
 restoreMarlinConfiguration()
 {
-  if [ -d "configuration/$1" ]; then
+  if [ -d "configuration/$backupName" ]; then
     echo -e "Restoring Marlin configuration\n"
     echo -e "  \"Configuration.h\""
     echo -e "  \"Configuration_adv.h\""
-    echo -e "\nfrom \"./configuration/$1/\"\n"
+    echo -e "\nfrom \"./configuration/$backupName/\"\n"
 
-    cp configuration/"$1"/Configuration.h "$marlinDir"/Marlin/
-    cp configuration/"$1"/Configuration_adv.h "$marlinDir"/Marlin/
+    cp configuration/"$backupName"/Configuration.h "$marlinDir"/Marlin/
+    cp configuration/"$backupName"/Configuration_adv.h "$marlinDir"/Marlin/
   else
-    echo -e "\nBackup configuration/$1 not found!\n"
+    echo -e "\nBackup configuration/$backupName not found!\n"
   fi
   exit
 }
@@ -208,25 +208,26 @@ cleanEverything()
 printUsage()
 {
   echo "Usage:"
-  echo " $scriptName ARGS"
+  echo " $scriptName <command> [<args>]"
   echo
   echo "Builds an installs Marlin 3D printer firmware."
   echo
-  echo "Options:"
+  echo "Commands:"
+  echo "   setup                    Download and configure the toolchain and the"
+  echo "                            necessary libraries for building Marlin."
+  echo "   get-marlin               Download Marlin sources."
+  echo "   update-marlin            Update existing Marlin source."
   echo
-  echo " -s, --setup                 Download and configure the toolchain and the"
-  echo "                             necessary libraries for building Marlin."
-  echo " -m, --marlin                Download Marlin sources."
-  echo " -f, --fetch                 Update an existing Marlin clone."
-  echo " -v, --verify                Build without uploading."
-  echo " -u, --upload                Build and upload Marlin."
-  echo " -b, --backupConfig  [name]  Backup the Marlin configuration to the named backup."
-  echo " -r, --restoreConfig [name]  Restore the given configuration into the Marlin directory."
-  echo "                               Rename to Configuration.h implicitly."
-  echo " -c, --clean                 Cleanup everything. Remove Marlin sources and Arduino toolchain"
-  echo " -p, --port [port]           Set the serialport for uploading the firmware."
-  echo "                               Overrides the default in the script."
-  echo " -h, --help                  Show this doc."
+  echo "   build                    Build Marlin without uploading."
+  echo "   build-upload             Build Marlin and upload."
+  echo "      -p, --port [port]     Set the device serial port."
+  echo
+  echo "   backup-config <name>     Backup the Marlin configuration to a named backup."
+  echo "   restore-config <name>    Restore the Marlin given configuration."
+  echo
+  echo "   clean                    Remove Arduino tool-chain and Marlin sources."
+  echo
+  echo "   help                     Show help."
   echo
   exit
 }
@@ -282,45 +283,74 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-while [ "$1" != "" ]; do
+parseBackupRestoreArgument() {
+  if [ $# -eq 0 ]; then
+    >&2 echo "No backup path given"
+    >&2 echo
+    exit 1
+  else
+    echo $1
+  fi
+}
+
+verb=''
+
+while [ "x$verb" = "x" ]; do
   case $1 in
-    -p | --port )
+    setup) verb=setupEnvironment;;
+    get-marlin) verb=getMarlin;;
+    update-marlin) verb=checkoutMarlin;;
+    build) verb=verifyBuild;;
+    build-upload) verb=buildAndUpload;;
+    backup-config)
+      verb=backupMarlinConfiguration
       shift
-      port=$1
+      backupName=$(parseBackupRestoreArgument $@)
       ;;
-    -s | --setup )
-      setupEnvironment
-      ;;
-    -m | --marlin )
-      getMarlin
-      ;;
-    -f | --fetch )
-      checkoutMarlin
-      ;;
-    -v | --verify )
-      verifyBuild
-      ;;
-    -u | --upload )
-      buildAndUpload
-      ;;
-    -b | --backupConfig )
+    restore-config)
+      verb=restoreMarlinConfiguration
       shift
-      backupMarlinConfiguration $1 exit
+      backupName=$(parseBackupRestoreArgument $@)
       ;;
-    -r | --restoreConfig )
-      shift
-      restoreMarlinConfiguration $1
-      ;;
-    -c | --clean )
-      shift
-      cleanEverything
-      ;;
-    -h | --help )
-      printUsage
-      ;;
-    * )
+    clean) verb=cleanEverything;;
+    help|-h|--help) verb=printUsage;;
+    *)
       printUsage >&2
       exit 1
+      ;;
   esac
   shift
 done
+
+case $verb in
+  buildAndUpload)
+    while [ $# -gt 0 ]; do
+      case $1 in
+        -p|--port)
+          shift
+          port=$1
+          ;;
+        -q|--quiet) quiet=y;;
+        -v|--verbose) verbose=y;;
+        *)
+          printUsage >&2
+          exit 1
+      esac
+      shift
+    done
+    ;;
+  *)
+    while [ $# -gt 0 ]; do
+      case $1 in
+        -q|--quiet) quiet=y;;
+        -v|--verbose) verbose=y;;
+        *)
+          printUsage >&2
+          exit 1
+      esac
+      shift
+    done
+    ;;
+esac
+
+$verb
