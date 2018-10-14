@@ -267,7 +267,7 @@ fi
 checkTools "$tools"
 checkCurlWget
 
-if [ "$1" = "" ]; then
+if [ $# -lt 1 ]; then
   printDocu; exit 1; fi
 
 while [ "$1" != "" ]; do
