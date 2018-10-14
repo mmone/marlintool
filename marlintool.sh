@@ -36,6 +36,24 @@ checkCurlWget()
   fi
 }
 
+checkToolChain()
+{
+  if [ ! -f $arduinoExecutable ]; then
+    >&2 echo "Arduino tool-chain has not been set up. Run $0 setup"
+    >&2 echo
+    exit 1
+  fi
+}
+
+checkMarlin()
+{
+  if [ ! -f $marlinDir/Marlin/Marlin.ino ]; then
+    >&2 echo "Marlin has not been set up. Run $0 get-marlin"
+    >&2 echo
+    exit 1
+  fi
+}
+
 gitRepoName()
 {
   basename "$1" ".${1##*.}"
@@ -241,6 +259,9 @@ build()
 {
   >&$l echo -e "\nBuilding Marlin...\n"
 
+  checkToolChain
+  checkMarlin
+
   if >&$o "$arduinoExecutable" --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino \
       --pref build.path="$buildDir" 2>&1 ; then
     >&$l echo "Build successful."
@@ -258,6 +279,9 @@ build()
 buildAndUpload()
 {
   >&$l echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
+
+  checkToolChain
+  checkMarlin
 
   if >&$o "$arduinoExecutable" --upload --port "$port" --verbose --board "$boardString" \
       "$marlinDir"/Marlin/Marlin.ino --pref build.path="$buildDir" 2>&1 ; then
