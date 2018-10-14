@@ -237,9 +237,9 @@ restoreMarlinConfiguration()
 }
 
 ## Build Marlin
-verifyBuild()
+build()
 {
-  >&$l echo -e "\nVerifying build ...\n"
+  >&$l echo -e "\nBuilding Marlin...\n"
 
   if >&$o "$arduinoExecutable" --verify --verbose --board "$boardString" "$marlinDir"/Marlin/Marlin.ino \
       --pref build.path="$buildDir" 2>&1 ; then
@@ -396,7 +396,7 @@ while [ "x$verb" = "x" ]; do
     setup) verb=setupEnvironment;;
     get-marlin) verb=getMarlin;;
     update-marlin) verb=checkoutMarlin;;
-    build) verb=verifyBuild;;
+    build) verb=build;;
     build-upload) verb=buildAndUpload;;
     backup-config)
       verb=backupMarlinConfiguration
