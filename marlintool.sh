@@ -167,7 +167,6 @@ getMarlin()
   local repoDir=$(getGitRepo "$marlinRepositoryUrl" "$marlinRepositoryBranch")
   rm -rf "$marlinDir"
   mv "$repoDir" "$marlinDir"
-  exit
 }
 
 ## Update an existing Marlin clone
@@ -192,7 +191,6 @@ updateMarlin()
   )
 
   restoreMarlinConfiguration
-  exit
 }
 
 
@@ -203,7 +201,6 @@ setupEnvironment()
   getArduinoToolchain
   getDependencies
   getHardwareDefinition
-  exit
 }
 
 ## Fetch and install anet board hardware definition
@@ -251,7 +248,6 @@ restoreMarlinConfiguration()
   else
     >&2 echo -e "\nBackup configuration/$backupName not found!\n"
   fi
-  exit
 }
 
 ## Build Marlin
@@ -270,8 +266,6 @@ build()
     >&2 echo
     exit 1
   fi
-
-  exit
 }
 
 
@@ -291,8 +285,6 @@ buildAndUpload()
     >&2 echo
     exit 1
   fi
-
-  exit
 }
 
 
