@@ -129,7 +129,7 @@ unpackArchive()
 ## Download the toolchain and unpack it
 getArduinoToolchain()
 {
-  >&$l echo -e "\nGetting Arduino environment..."
+  >&$l echo "Getting Arduino environment..."
 
   local archive=$(getFile http://downloads-02.arduino.cc/"$arduinoToolchainArchive" $arduinoToolchainArchive)
   rm -rf "$arduinoDir"
@@ -266,7 +266,7 @@ restoreMarlinConfiguration()
 ## Build Marlin
 build()
 {
-  >&$l echo -e "\nBuilding Marlin...\n"
+  >&$l echo "Building Marlin...\n"
 
   checkToolChain
   checkMarlin
@@ -285,7 +285,7 @@ build()
 ## Build Marlin and upload 
 buildAndUpload()
 {
-  >&$l echo -e "\nBuilding and uploading Marlin build from \"$buildDir\" ...\n"
+  echo "Building and uploading Marlin..."
 
   checkToolChain
   checkMarlin
