@@ -153,7 +153,7 @@ getMarlin()
 }
 
 ## Update an existing Marlin clone
-checkoutMarlin()
+updateMarlin()
 {
   local cacheRepo=$cacheDir/Marlin
 
@@ -395,7 +395,7 @@ while [ "x$verb" = "x" ]; do
   case $1 in
     setup) verb=setupEnvironment;;
     get-marlin) verb=getMarlin;;
-    update-marlin) verb=checkoutMarlin;;
+    update-marlin) verb=updateMarlin;;
     build) verb=build;;
     build-upload) verb=buildAndUpload;;
     backup-config)
