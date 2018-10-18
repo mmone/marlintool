@@ -175,9 +175,9 @@ updateMarlin()
   local cacheRepo=$cacheDir/Marlin
 
   backupName=`date +%Y-%m-%d-%H-%M-%S`
-  backupMarlinConfiguration
+  doBackup $backupName
 
-  >&$l echo -e "\nFetching most recent Marlin from \"$marlinRepositoryUrl\" ...\n"
+  >&$l echo "Fetching most recent Marlin from \"$marlinRepositoryUrl\"..."
 
   (
     cd $cacheRepo
@@ -190,7 +190,7 @@ updateMarlin()
     >&$o git reset origin/`git rev-parse --abbrev-ref HEAD` --hard
   )
 
-  restoreMarlinConfiguration
+  doRestore $backupName
 }
 
 
@@ -217,20 +217,38 @@ getHardwareDefinition()
   fi
 }
 
+## Reports the backup paths
+reportBackupFiles()
+{
+  >&$l echo "  \"Configuration.h\""
+  >&$l echo "  \"Configuration_adv.h\""
+  >&$l echo "$1 \"./configuration/$backupName/\""
+  >&$l echo
+}
+
+## Performs the backup operation
+doBackup()
+{
+  >&$l echo "Saving Marlin configuration..."
+  mkdir -p configuration/$0
+  cp "$marlinDir"/Marlin/Configuration.h configuration/"$0"
+  cp "$marlinDir"/Marlin/Configuration_adv.h configuration/"$0"
+}
+
+doRestore()
+{
+  >&$l echo "Restoring Marlin configuration..."
+  cp configuration/"$0"/Configuration.h "$marlinDir"/Marlin/
+  cp configuration/"$0"/Configuration_adv.h "$marlinDir"/Marlin/
+}
+
 
 ## Backup Marlin configuration
 ## param #1 backup name
 backupMarlinConfiguration()
 {
-  >&$l echo -e "\nSaving Marlin configuration\n"
-  >&$l echo -e "  \"Configuration.h\""
-  >&$l echo -e "  \"Configuration_adv.h\""
-  >&$l echo -e "\nto \"./configuration/$backupName/\"\n"
-
-  mkdir -p configuration/$backupName
-
-  cp "$marlinDir"/Marlin/Configuration.h configuration/"$backupName"
-  cp "$marlinDir"/Marlin/Configuration_adv.h configuration/"$backupName"
+  doBackup $backupName
+  reportBackupFiles 'to'
 }
 
 ## Restore Marlin Configuration from backup
@@ -238,15 +256,10 @@ backupMarlinConfiguration()
 restoreMarlinConfiguration()
 {
   if [ -d "configuration/$backupName" ]; then
-    >&$l echo -e "Restoring Marlin configuration\n"
-    >&$l echo -e "  \"Configuration.h\""
-    >&$l echo -e "  \"Configuration_adv.h\""
-    >&$l echo -e "\nfrom \"./configuration/$backupName/\"\n"
-
-    cp configuration/"$backupName"/Configuration.h "$marlinDir"/Marlin/
-    cp configuration/"$backupName"/Configuration_adv.h "$marlinDir"/Marlin/
+    doRestore $backupName
+    reportBackupFiles 'from'
   else
-    >&2 echo -e "\nBackup configuration/$backupName not found!\n"
+    >&2 echo "Backup configuration/$backupName not found!"
   fi
 }
 
