@@ -27,9 +27,9 @@ getArduinoToolchain()
 {
    echo -e "\nDownloading Arduino environment ...\n"
    if [ "$os" == "Darwin" ]; then
-     curl -o "$arduinoToolchainArchive" http://downloads-02.arduino.cc/"$arduinoToolchainArchive"
+     curl -o "$arduinoToolchainArchive" http://downloads.arduino.cc/"$arduinoToolchainArchive"
    else
-     wget http://downloads-02.arduino.cc/"$arduinoToolchainArchive"
+     wget http://downloads.arduino.cc/"$arduinoToolchainArchive"
    fi
    mkdir -p "$arduinoDir/portable"
    echo -e "\nUnpacking Arduino environment. This might take a while ...\n"
