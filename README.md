@@ -1,3 +1,8 @@
+THIS SOLUTION IS NO LONGER MAINTAINED.
+
+Follow the official building guide based on PlatformIO instead: [/marlinfw.org/docs/basics/install_platformio_cli.html](https://marlinfw.org/docs/basics/install_platformio_cli.html)
+
+
 # marlintool
 
 This script sets up the build environment, collects dependencies and provides commands for building and uploading Marlin from the commandline. It uses the official Arduino toolchain. Everything is standalone nothing is installed outside the marlintool directory.
